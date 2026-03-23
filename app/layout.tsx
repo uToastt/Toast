@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description:
     "Welcome to the official website of Toast - Minecraft content creator, gaming enthusiast, and community builder. Part of the Dystopian Universe.",
   keywords: ["Minecraft", "YouTuber", "Gaming", "Toast", "Content Creator", "Dystopian Universe"],
+  icons: {
+    icon: "https://yt3.googleusercontent.com/NyVQ_LhL1IT67IE7ljjIcOLqHdKqMgPn5F7GW8SvMgpGRyLkNqFC-dqOWPs0QGMgVvmTsB_G=s176-c-k-c0x00ffffff-no-rj",
+    apple: "https://yt3.googleusercontent.com/NyVQ_LhL1IT67IE7ljjIcOLqHdKqMgPn5F7GW8SvMgpGRyLkNqFC-dqOWPs0QGMgVvmTsB_G=s176-c-k-c0x00ffffff-no-rj",
+  },
   openGraph: {
     title: "Toast | Minecraft YouTuber",
     description:

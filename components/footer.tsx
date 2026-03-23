@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Youtube, Heart } from "lucide-react";
+import { useYouTubeStats } from "@/lib/use-youtube-stats";
 
 // Discord icon component
 function DiscordIcon({ className }: { className?: string }) {
@@ -18,6 +20,9 @@ function DiscordIcon({ className }: { className?: string }) {
 }
 
 export function Footer() {
+  const { channels } = useYouTubeStats();
+  const mainChannel = channels?.["@Taostt"];
+
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -25,9 +30,22 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1 space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="font-display font-bold text-xl text-primary-foreground">T</span>
-              </div>
+              {mainChannel?.profileImage ? (
+                <div className="w-10 h-10 rounded-lg overflow-hidden">
+                  <Image
+                    src={mainChannel.profileImage}
+                    alt="Toast"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="font-display font-bold text-xl text-primary-foreground">T</span>
+                </div>
+              )}
               <span className="font-display font-bold text-xl text-foreground">TOAST</span>
             </Link>
             <p className="text-muted-foreground max-w-sm">

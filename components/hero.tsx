@@ -3,7 +3,7 @@
 import { Youtube } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useYouTubeStats, formatCount } from "@/lib/use-youtube-stats";
+import { useYouTubeStats } from "@/lib/use-youtube-stats";
 
 // Discord icon component
 function DiscordIcon({ className }: { className?: string }) {
@@ -20,7 +20,7 @@ function DiscordIcon({ className }: { className?: string }) {
 }
 
 export function Hero() {
-  const { channels, isLoading } = useYouTubeStats();
+  const { channels } = useYouTubeStats();
   const mainChannel = channels?.["@Taostt"];
 
   return (
@@ -148,19 +148,7 @@ export function Hero() {
                 </div>
               </div>
 
-              {/* Floating Stats */}
-              <div className="absolute -top-4 -right-4 bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
-                <p className="text-xs text-muted-foreground">Subscribers</p>
-                <p className="font-display font-bold text-primary text-lg">
-                  {isLoading ? "..." : mainChannel ? formatCount(mainChannel.subscribers) : "..."}
-                </p>
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
-                <p className="text-xs text-muted-foreground">Total Views</p>
-                <p className="font-display font-bold text-primary text-lg">
-                  {isLoading ? "..." : mainChannel ? formatCount(mainChannel.views) : "..."}
-                </p>
-              </div>
+              
             </div>
           </div>
         </div>

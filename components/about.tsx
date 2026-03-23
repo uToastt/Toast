@@ -1,31 +1,8 @@
 "use client";
 
-import { Gamepad2, Users, Video, Eye } from "lucide-react";
-import { useYouTubeStats, formatCount } from "@/lib/use-youtube-stats";
+import { Gamepad2 } from "lucide-react";
 
 export function About() {
-  const { channels, isLoading } = useYouTubeStats();
-  const mainChannel = channels?.["@Taostt"];
-
-  const stats = [
-    { 
-      icon: Users, 
-      value: isLoading ? "..." : mainChannel ? formatCount(mainChannel.subscribers) : "...", 
-      label: "Subscribers" 
-    },
-    { 
-      icon: Video, 
-      value: isLoading ? "..." : mainChannel ? mainChannel.videoCount : "...", 
-      label: "Videos" 
-    },
-    { icon: Gamepad2, value: "9", label: "Years Gaming" },
-    { 
-      icon: Eye, 
-      value: isLoading ? "..." : mainChannel ? formatCount(mainChannel.views) : "...", 
-      label: "Total Views" 
-    },
-  ];
-
   return (
     <section id="about" className="py-24 bg-card relative overflow-hidden">
       {/* Decorative stripe pattern */}
@@ -69,22 +46,15 @@ export function About() {
             </div>
           </div>
 
-          {/* Right - Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {stats.map((stat, index) => (
-              <div
-                key={stat.label}
-                className={`p-6 rounded-2xl bg-background border border-border hover:border-primary/50 transition-all group ${
-                  index === 0 ? "md:col-span-2" : ""
-                }`}
-              >
-                <stat.icon className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-transform" />
-                <p className="font-display text-3xl md:text-4xl font-bold text-foreground">
-                  {stat.value}
-                </p>
-                <p className="text-muted-foreground text-sm">{stat.label}</p>
-              </div>
-            ))}
+          {/* Right - Years Gaming Highlight */}
+          <div className="flex justify-center">
+            <div className="p-8 rounded-2xl bg-background border border-border hover:border-primary/50 transition-all group max-w-xs">
+              <Gamepad2 className="w-12 h-12 text-primary mb-4 group-hover:scale-110 transition-transform" />
+              <p className="font-display text-5xl md:text-6xl font-bold text-foreground">
+                9
+              </p>
+              <p className="text-muted-foreground text-lg">Years Playing Minecraft</p>
+            </div>
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Youtube, ExternalLink } from "lucide-react";
-import { useYouTubeStats, formatCount } from "@/lib/use-youtube-stats";
+import { useYouTubeStats } from "@/lib/use-youtube-stats";
 
 const creators = [
   {
@@ -21,7 +21,7 @@ const creators = [
 ];
 
 export function DystopianUniverse() {
-  const { channels, isLoading } = useYouTubeStats();
+  const { channels } = useYouTubeStats();
 
   return (
     <section id="dystopian" className="py-24 bg-card relative overflow-hidden">
@@ -64,7 +64,7 @@ export function DystopianUniverse() {
                 key={creator.handle}
                 className="bg-background border border-border rounded-2xl p-6 hover:border-primary/50 transition-all group"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   {/* Avatar */}
                   <div className="flex-shrink-0">
                     {channelData?.profileImage ? (
@@ -89,29 +89,13 @@ export function DystopianUniverse() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-display text-xl font-bold text-foreground truncate">
                         {channelData?.name || creator.name}
                       </h3>
                       <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded">
                         {creator.role}
                       </span>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 mb-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Subscribers</p>
-                        <p className="font-display font-bold text-primary">
-                          {isLoading ? "..." : channelData ? formatCount(channelData.subscribers) : "..."}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Videos</p>
-                        <p className="font-display font-bold text-foreground">
-                          {isLoading ? "..." : channelData ? channelData.videoCount : "..."}
-                        </p>
-                      </div>
                     </div>
 
                     {/* Link */}

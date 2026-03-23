@@ -6,37 +6,37 @@ import Link from "next/link";
 const videos = [
   {
     title: "I Survived 100 Days in Hardcore Minecraft",
-    views: "2.4M views",
+    views: "2.4K views",
     duration: "45:32",
     thumbnail: "bg-gradient-to-br from-primary/30 to-secondary",
   },
   {
     title: "Building the ULTIMATE Minecraft Base",
-    views: "1.8M views",
+    views: "1.8K views",
     duration: "32:15",
     thumbnail: "bg-gradient-to-br from-secondary to-primary/30",
   },
   {
     title: "Speedrunning Minecraft in Under 20 Minutes",
-    views: "3.1M views",
+    views: "3.1K views",
     duration: "24:08",
     thumbnail: "bg-gradient-to-br from-primary/40 to-muted",
   },
   {
     title: "Epic Minecraft Multiplayer Battle Royale",
-    views: "1.5M views",
+    views: "1.5K views",
     duration: "28:44",
     thumbnail: "bg-gradient-to-br from-muted to-primary/30",
   },
   {
     title: "Creating a Working Redstone Computer",
-    views: "890K views",
+    views: "890 views",
     duration: "52:21",
     thumbnail: "bg-gradient-to-br from-primary/20 to-secondary",
   },
   {
     title: "Minecraft but Everything is RANDOM",
-    views: "2.1M views",
+    views: "2.1K views",
     duration: "36:09",
     thumbnail: "bg-gradient-to-br from-secondary to-primary/20",
   },
@@ -55,7 +55,7 @@ export function Videos() {
             Featured <span className="text-primary">Videos</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Check out my most popular videos and join millions of viewers on epic Minecraft adventures.
+            Check out my most popular videos and join the community on epic Minecraft adventures.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export function Videos() {
           {videos.map((video, index) => (
             <Link
               key={index}
-              href="https://youtube.com"
+              href="https://www.youtube.com/@Taostt/videos"
               target="_blank"
               className="group block"
             >
@@ -100,7 +100,7 @@ export function Videos() {
         {/* CTA */}
         <div className="text-center mt-12">
           <Link
-            href="https://youtube.com"
+            href="https://www.youtube.com/@Taostt/videos"
             target="_blank"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-all hover:scale-105"
           >

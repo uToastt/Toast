@@ -13,14 +13,14 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Toast | Minecraft YouTuber",
+  title: "Taost | Minecraft YouTuber",
   description:
-    "Welcome to the official website of Toast - Minecraft content creator, gaming enthusiast, and community builder.",
-  keywords: ["Minecraft", "YouTuber", "Gaming", "Toast", "Content Creator"],
+    "Welcome to the official website of Taost - Minecraft content creator, gaming enthusiast, and community builder. Part of the Dystopian Universe.",
+  keywords: ["Minecraft", "YouTuber", "Gaming", "Taost", "Content Creator", "Dystopian Universe"],
   openGraph: {
-    title: "Toast | Minecraft YouTuber",
+    title: "Taost | Minecraft YouTuber",
     description:
-      "Welcome to the official website of Toast - Minecraft content creator, gaming enthusiast, and community builder.",
+      "Welcome to the official website of Taost - Minecraft content creator, gaming enthusiast, and community builder. Part of the Dystopian Universe.",
     type: "website",
   },
 };

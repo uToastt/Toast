@@ -1,15 +1,31 @@
 "use client";
 
-import { Gamepad2, Users, Video, Award } from "lucide-react";
-
-const stats = [
-  { icon: Users, value: "1.2M+", label: "Subscribers" },
-  { icon: Video, value: "500+", label: "Videos" },
-  { icon: Gamepad2, value: "5+", label: "Years Gaming" },
-  { icon: Award, value: "10M+", label: "Likes" },
-];
+import { Gamepad2, Users, Video, Eye } from "lucide-react";
+import { useYouTubeStats, formatCount } from "@/lib/use-youtube-stats";
 
 export function About() {
+  const { channels, isLoading } = useYouTubeStats();
+  const mainChannel = channels?.["@Taostt"];
+
+  const stats = [
+    { 
+      icon: Users, 
+      value: isLoading ? "..." : mainChannel ? formatCount(mainChannel.subscribers) : "...", 
+      label: "Subscribers" 
+    },
+    { 
+      icon: Video, 
+      value: isLoading ? "..." : mainChannel ? mainChannel.videoCount : "...", 
+      label: "Videos" 
+    },
+    { icon: Gamepad2, value: "9", label: "Years Gaming" },
+    { 
+      icon: Eye, 
+      value: isLoading ? "..." : mainChannel ? formatCount(mainChannel.views) : "...", 
+      label: "Total Views" 
+    },
+  ];
+
   return (
     <section id="about" className="py-24 bg-card relative overflow-hidden">
       {/* Decorative stripe pattern */}
@@ -31,13 +47,13 @@ export function About() {
 
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                {"Hey, I'm Toast! I've been exploring the endless possibilities of Minecraft for over 5 years, turning virtual blocks into epic adventures that millions of viewers love."}
+                {"Hey, I'm Taost! I've been exploring the endless possibilities of Minecraft for over 9 years, turning virtual blocks into epic adventures that viewers love."}
               </p>
               <p>
                 From survival challenges to massive builds, speedruns to multiplayer mayhem - I create content that brings the Minecraft community together. My goal is to entertain, inspire creativity, and show everyone that gaming is more than just a hobby.
               </p>
               <p>
-                When {"I'm"} not mining diamonds or fighting Endermen, you can find me streaming on Twitch, connecting with the community on Discord, or working on the next big video project.
+                When {"I'm"} not mining diamonds or fighting Endermen, you can find me connecting with the community on Discord or working on the next big video project.
               </p>
             </div>
 

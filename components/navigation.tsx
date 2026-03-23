@@ -8,8 +8,7 @@ const navItems = [
   { label: "Home", href: "#" },
   { label: "About", href: "#about" },
   { label: "Videos", href: "#videos" },
-  { label: "Merch", href: "#merch" },
-  { label: "Contact", href: "#contact" },
+  { label: "Dystopian Universe", href: "#dystopian" },
 ];
 
 export function Navigation() {
@@ -24,7 +23,7 @@ export function Navigation() {
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="font-display font-bold text-xl text-primary-foreground">T</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground">TOAST</span>
+            <span className="font-display font-bold text-xl text-foreground">TAOST</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -39,7 +38,7 @@ export function Navigation() {
               </Link>
             ))}
             <Link
-              href="https://youtube.com"
+              href="https://www.youtube.com/@Taostt?sub_confirmation=1"
               target="_blank"
               className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all"
             >
@@ -72,7 +71,7 @@ export function Navigation() {
                 </Link>
               ))}
               <Link
-                href="https://youtube.com"
+                href="https://www.youtube.com/@Taostt?sub_confirmation=1"
                 target="_blank"
                 className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all text-center"
               >

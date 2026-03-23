@@ -35,7 +35,7 @@ async function fetchPlaylistVideos(): Promise<PlaylistVideo[]> {
     const html = await response.text();
 
     // Extract initial data JSON from the page
-    const initialDataMatch = html.match(/var ytInitialData = ({.*?});/s);
+    const initialDataMatch = html.match(/var ytInitialData = ({[\s\S]*?});/);
     if (!initialDataMatch) {
       console.error("Could not find ytInitialData");
       return [];

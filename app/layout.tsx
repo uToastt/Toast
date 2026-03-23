@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description:
     "Welcome to the official website of Toast - Minecraft content creator, gaming enthusiast, and community builder. Part of the Dystopian Universe.",
   keywords: ["Minecraft", "YouTuber", "Gaming", "Toast", "Content Creator", "Dystopian Universe"],
+  icons: {
+    icon: "/favicon.jpg",
+    apple: "/favicon.jpg",
+  },
   openGraph: {
     title: "Toast | Minecraft YouTuber",
     description:

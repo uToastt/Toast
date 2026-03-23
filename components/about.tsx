@@ -1,0 +1,80 @@
+"use client";
+
+import { Gamepad2, Users, Video, Award } from "lucide-react";
+
+const stats = [
+  { icon: Users, value: "1.2M+", label: "Subscribers" },
+  { icon: Video, value: "500+", label: "Videos" },
+  { icon: Gamepad2, value: "5+", label: "Years Gaming" },
+  { icon: Award, value: "10M+", label: "Likes" },
+];
+
+export function About() {
+  return (
+    <section id="about" className="py-24 bg-card relative overflow-hidden">
+      {/* Decorative stripe pattern */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left - Content */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
+                About
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
+                From Crafting Blocks to Creating{" "}
+                <span className="text-primary">Epic Content</span>
+              </h2>
+            </div>
+
+            <div className="space-y-4 text-muted-foreground leading-relaxed">
+              <p>
+                {"Hey, I'm Toast! I've been exploring the endless possibilities of Minecraft for over 5 years, turning virtual blocks into epic adventures that millions of viewers love."}
+              </p>
+              <p>
+                From survival challenges to massive builds, speedruns to multiplayer mayhem - I create content that brings the Minecraft community together. My goal is to entertain, inspire creativity, and show everyone that gaming is more than just a hobby.
+              </p>
+              <p>
+                When {"I'm"} not mining diamonds or fighting Endermen, you can find me streaming on Twitch, connecting with the community on Discord, or working on the next big video project.
+              </p>
+            </div>
+
+            {/* Content Types */}
+            <div className="flex flex-wrap gap-3">
+              {["Survival", "Builds", "Speedruns", "Multiplayer", "Tutorials", "Challenges"].map(
+                (tag) => (
+                  <span
+                    key={tag}
+                    className="px-4 py-2 bg-muted text-muted-foreground rounded-lg text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-all cursor-default"
+                  >
+                    {tag}
+                  </span>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* Right - Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {stats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className={`p-6 rounded-2xl bg-background border border-border hover:border-primary/50 transition-all group ${
+                  index === 0 ? "md:col-span-2" : ""
+                }`}
+              >
+                <stat.icon className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-transform" />
+                <p className="font-display text-3xl md:text-4xl font-bold text-foreground">
+                  {stat.value}
+                </p>
+                <p className="text-muted-foreground text-sm">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

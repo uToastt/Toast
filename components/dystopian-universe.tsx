@@ -10,14 +10,12 @@ const creators = [
     handle: "@1ts_Toxic",
     name: "1ts_Toxic",
     role: "Co-Creator",
-    description: "Bringing chaos and creativity to the Dystopian Universe with epic builds and intense gameplay.",
     link: "https://www.youtube.com/@1ts_Toxic",
   },
   {
     handle: "@Cant_DoIt-Tv",
     name: "Can'tDoit",
     role: "Co-Creator",
-    description: "Master of survival and challenges, pushing the limits of what's possible in our dystopian world.",
     link: "https://www.youtube.com/@Cant_DoIt-Tv",
   },
 ];
@@ -99,9 +97,6 @@ export function DystopianUniverse() {
                         {creator.role}
                       </span>
                     </div>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      {creator.description}
-                    </p>
 
                     {/* Stats */}
                     <div className="flex items-center gap-4 mb-4">

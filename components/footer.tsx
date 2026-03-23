@@ -28,7 +28,7 @@ export function Footer() {
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                 <span className="font-display font-bold text-xl text-primary-foreground">T</span>
               </div>
-              <span className="font-display font-bold text-xl text-foreground">TAOST</span>
+              <span className="font-display font-bold text-xl text-foreground">TOAST</span>
             </Link>
             <p className="text-muted-foreground max-w-sm">
               Minecraft content creator bringing epic adventures, insane builds, and unforgettable gaming moments to viewers worldwide.
@@ -104,7 +104,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm">
-            {new Date().getFullYear()} Taost. All rights reserved.
+            {new Date().getFullYear()} Toast. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-primary fill-current" /> for the gaming community

@@ -23,7 +23,7 @@ export function Navigation() {
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="font-display font-bold text-xl text-primary-foreground">T</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground">TAOST</span>
+            <span className="font-display font-bold text-xl text-foreground">TOAST</span>
           </Link>
 
           {/* Desktop Nav */}

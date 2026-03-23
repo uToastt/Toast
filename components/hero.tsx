@@ -57,7 +57,7 @@ export function Hero() {
               <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold text-balance">
                 I am{" "}
                 <span className="text-primary relative">
-                  Taost
+                  Toast
                   <svg
                     className="absolute -bottom-2 left-0 w-full"
                     viewBox="0 0 200 12"
@@ -130,7 +130,7 @@ export function Hero() {
                     <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-2xl overflow-hidden shadow-2xl shadow-primary/30">
                       <Image
                         src={mainChannel.profileImage}
-                        alt="Taost Profile"
+                        alt="Toast Profile"
                         width={176}
                         height={176}
                         className="w-full h-full object-cover"
@@ -144,7 +144,7 @@ export function Hero() {
                       </span>
                     </div>
                   )}
-                  <p className="font-display text-2xl font-bold text-foreground">TAOST</p>
+                  <p className="font-display text-2xl font-bold text-foreground">TOAST</p>
                 </div>
               </div>
 

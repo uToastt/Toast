@@ -47,19 +47,16 @@ export function About() {
 
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                {"Hey, I'm Taost! I've been exploring the endless possibilities of Minecraft for over 9 years, turning virtual blocks into epic adventures that viewers love."}
+                {"Hey I'm Toast! I have been making minecraft content for years and am working on many projects that will turn into content for all of you!"}
               </p>
               <p>
-                From survival challenges to massive builds, speedruns to multiplayer mayhem - I create content that brings the Minecraft community together. My goal is to entertain, inspire creativity, and show everyone that gaming is more than just a hobby.
-              </p>
-              <p>
-                When {"I'm"} not mining diamonds or fighting Endermen, you can find me connecting with the community on Discord or working on the next big video project.
+                I do mostly a scripted minecraft series named Dystopian Universe to create interesting stories for people to watch. I hope you enjoy my content!
               </p>
             </div>
 
             {/* Content Types */}
             <div className="flex flex-wrap gap-3">
-              {["Survival", "Builds", "Speedruns", "Multiplayer", "Tutorials", "Challenges"].map(
+              {["Scripted Series", "Dystopian Universe", "Minecraft", "Storytelling"].map(
                 (tag) => (
                   <span
                     key={tag}

@@ -19,7 +19,7 @@ export function Videos() {
             Latest Content
           </p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-            Featured <span className="text-primary">Videos</span>
+            Most Popular <span className="text-primary">Videos</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Check out my most popular videos and join the community on epic Minecraft adventures.

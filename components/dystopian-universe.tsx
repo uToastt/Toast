@@ -12,12 +12,6 @@ const creators = [
     role: "Co-Creator",
     link: "https://www.youtube.com/@1ts_Toxic",
   },
-  {
-    handle: "@Cant_DoIt-Tv",
-    name: "Can'tDoit",
-    role: "Co-Creator",
-    link: "https://www.youtube.com/@Cant_DoIt-Tv",
-  },
 ];
 
 export function DystopianUniverse() {

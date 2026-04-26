@@ -17,8 +17,7 @@ export function About() {
                 About
               </p>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-                From Crafting Blocks to Creating{" "}
-                <span className="text-primary">Epic Content</span>
+                <span className="text-primary">About me</span>
               </h2>
             </div>
 

@@ -73,10 +73,7 @@ export function Hero() {
                   </svg>
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-md leading-relaxed">
-                Building worlds, breaking blocks, and bringing epic adventures
-                to players around the globe.
-              </p>
+
             </div>
 
             <div className="flex flex-wrap gap-4">

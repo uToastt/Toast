@@ -49,7 +49,7 @@ export function DystopianUniverse() {
         </div>
 
         {/* Creators Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="flex justify-center gap-8 max-w-4xl mx-auto">
           {creators.map((creator) => {
             const channelData = channels?.[creator.handle];
             

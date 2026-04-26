@@ -77,15 +77,7 @@ export function JoinServer() {
                 <p className="text-center text-foreground">Any Version</p>
               </div>
 
-              {/* Divider */}
-              <div className="border-t border-border" />
 
-              {/* Instructions */}
-              <div className="space-y-3">
-                <p className="text-sm font-semibold text-muted-foreground text-center">
-                  Copy the server IP and paste it into your Minecraft launcher to join us!
-                </p>
-              </div>
             </div>
           </div>
 

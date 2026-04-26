@@ -10,13 +10,13 @@ interface PlaylistVideo {
   url: string;
 }
 
-const PLAYLIST_ID = "PLCgYlEtkXxo8MS5EErbrhfFB4w1lPsjwH";
+const CHANNEL_ID = "UCqKaR6Z3WCJ_RW0mEJwJ4Uw"; // @Taostt channel ID
 
-async function fetchPlaylistVideos(): Promise<PlaylistVideo[]> {
+async function fetchPopularVideos(): Promise<PlaylistVideo[]> {
   try {
-    // Fetch the YouTube playlist page
+    // Fetch the YouTube channel's videos tab with popular sort
     const response = await fetch(
-      `https://www.youtube.com/playlist?list=${PLAYLIST_ID}`,
+      `https://www.youtube.com/@Taostt/videos?sort=p`,
       {
         headers: {
           "User-Agent":
@@ -28,7 +28,7 @@ async function fetchPlaylistVideos(): Promise<PlaylistVideo[]> {
     );
 
     if (!response.ok) {
-      console.error("Failed to fetch playlist:", response.status);
+      console.error("Failed to fetch channel videos:", response.status);
       return [];
     }
 
@@ -43,30 +43,41 @@ async function fetchPlaylistVideos(): Promise<PlaylistVideo[]> {
 
     const initialData = JSON.parse(initialDataMatch[1]);
 
-    // Navigate to playlist contents
-    const contents =
-      initialData?.contents?.twoColumnBrowseResultsRenderer?.tabs?.[0]?.tabRenderer?.content
-        ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents?.[0]
-        ?.playlistVideoListRenderer?.contents || [];
+    // Navigate to tab contents - for videos tab with popular sort
+    const tabs = initialData?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
+    let videoContents: any[] = [];
+
+    // Find the videos tab
+    for (const tab of tabs) {
+      const tabRenderer = tab?.tabRenderer;
+      if (tabRenderer?.content) {
+        const richGridContents =
+          tabRenderer.content?.richGridRenderer?.contents || [];
+        videoContents = richGridContents;
+        break;
+      }
+    }
 
     const videos: PlaylistVideo[] = [];
 
-    for (const item of contents) {
-      const video = item?.playlistVideoRenderer;
-      if (!video) continue;
+    for (const item of videoContents) {
+      const videoRenderer = item?.richItemRenderer?.content?.videoRenderer;
+      if (!videoRenderer) continue;
 
-      const videoId = video.videoId;
-      const title = video.title?.runs?.[0]?.text || "Untitled";
+      const videoId = videoRenderer.videoId;
+      const title = videoRenderer.title?.runs?.[0]?.text || "Untitled";
       
       // Get best thumbnail
-      const thumbnails = video.thumbnail?.thumbnails || [];
+      const thumbnails = videoRenderer.thumbnail?.thumbnails || [];
       const thumbnail = thumbnails[thumbnails.length - 1]?.url || "";
       
       // Get duration
-      const duration = video.lengthText?.simpleText || "0:00";
+      const duration = videoRenderer.lengthText?.simpleText || "0:00";
       
-      // Get view count
-      const viewCountText = video.videoInfo?.runs?.[0]?.text || "";
+      // Get view count from shortcuts
+      const viewCountText = videoRenderer.shortBylineText?.simpleText || 
+                           videoRenderer.viewCountText?.simpleText || 
+                           videoRenderer.metrics?.[0]?.metricRenderer?.label?.simpleText || "";
       const views = viewCountText.replace(" views", "").trim() || "0";
 
       videos.push({
@@ -76,23 +87,22 @@ async function fetchPlaylistVideos(): Promise<PlaylistVideo[]> {
         duration,
         views,
         publishedAt: "",
-        url: `https://www.youtube.com/watch?v=${videoId}&list=${PLAYLIST_ID}`,
+        url: `https://www.youtube.com/watch?v=${videoId}`,
       });
     }
 
     return videos;
   } catch (error) {
-    console.error("Error fetching playlist:", error);
+    console.error("Error fetching popular videos:", error);
     return [];
   }
 }
 
 export async function GET() {
-  const videos = await fetchPlaylistVideos();
+  const videos = await fetchPopularVideos();
 
   return NextResponse.json(
     { 
-      playlistId: PLAYLIST_ID,
       videos,
       updatedAt: new Date().toISOString(),
     },

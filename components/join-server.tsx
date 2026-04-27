@@ -24,10 +24,7 @@ export function JoinServer() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
-          <div className="text-center space-y-4 mb-12">
-            <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-              Join Us
-            </p>
+          <div className="text-center mb-12">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
               Join the Server
             </h2>

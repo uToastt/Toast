@@ -18,14 +18,9 @@ export function About() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - Content */}
           <div className="space-y-8">
-            <div className="space-y-4">
-              <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-                About
-              </p>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-                <span className="text-primary">About me</span>
-              </h2>
-            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
+              <span className="text-primary">About me</span>
+            </h2>
 
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>

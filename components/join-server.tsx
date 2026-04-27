@@ -14,8 +14,14 @@ export function JoinServer() {
   };
 
   return (
-    <section id="join-server" className="py-24 bg-background">
-      <div className="container mx-auto px-4">
+    <section id="join-server" className="py-24 bg-background relative overflow-hidden">
+      {/* Starry galaxy background */}
+      <div className="stars-layer" />
+      {/* Nebula glow */}
+      <div className="nebula-glow absolute w-[28rem] h-[28rem] top-[-3rem] right-[10%] opacity-15" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.4) 0%, transparent 70%)" }} />
+      <div className="nebula-glow absolute w-80 h-80 bottom-[-3rem] left-[5%] opacity-10" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.5) 0%, transparent 70%)" }} />
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center space-y-4 mb-12">

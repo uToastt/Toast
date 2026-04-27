@@ -11,8 +11,14 @@ export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
   return (
-    <section id="videos" className="py-24 bg-background">
-      <div className="container mx-auto px-4">
+    <section id="videos" className="py-24 bg-background relative overflow-hidden">
+      {/* Starry galaxy background */}
+      <div className="stars-layer" />
+      {/* Nebula glow */}
+      <div className="nebula-glow absolute w-[32rem] h-[32rem] top-[-6rem] left-[-6rem] opacity-15" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.45) 0%, transparent 70%)" }} />
+      <div className="nebula-glow absolute w-96 h-96 bottom-[-4rem] right-[5%] opacity-10" style={{ background: "radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)" }} />
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center space-y-4 mb-16">
           <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">

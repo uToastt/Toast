@@ -19,16 +19,12 @@ export function DystopianUniverse() {
 
   return (
     <section id="dystopian" className="py-24 bg-card relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, hsl(45 100% 51%) 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
+      {/* Starry galaxy background */}
+      <div className="stars-layer" />
+      {/* Nebula glow */}
+      <div className="nebula-glow absolute w-[36rem] h-[36rem] top-[-8rem] left-[20%] opacity-20" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.5) 0%, transparent 70%)" }} />
+      <div className="nebula-glow absolute w-72 h-72 bottom-[-2rem] left-[5%] opacity-12" style={{ background: "radial-gradient(circle, rgba(168,85,247,0.5) 0%, transparent 70%)" }} />
+      <div className="nebula-glow absolute w-72 h-72 bottom-[-2rem] right-[5%] opacity-12" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%)" }} />
 
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />

@@ -7,6 +7,12 @@ import { useYouTubeStats } from "@/lib/use-youtube-stats";
 
 const creators = [
   {
+    handle: "@Taostt",
+    name: "Toast",
+    role: "Creator",
+    link: "https://www.youtube.com/@Taostt",
+  },
+  {
     handle: "@1ts_Toxic",
     name: "1ts_Toxic",
     role: "Co-Creator",

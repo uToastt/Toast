@@ -37,9 +37,6 @@ export function Hero() {
           {/* Left Side - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-                Minecraft Content Creator
-              </p>
               <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold text-balance">
                 I am{" "}
                 <span className="text-primary relative">
@@ -59,7 +56,6 @@ export function Hero() {
                   </svg>
                 </span>
               </h1>
-
             </div>
 
             <div className="flex flex-wrap gap-4">

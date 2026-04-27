@@ -27,25 +27,25 @@
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 48 100% 96%;
-    --card: 0 0% 7%;
-    --card-foreground: 48 100% 96%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 48 100% 96%;
-    --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 45 10% 15%;
-    --secondary-foreground: 48 100% 96%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 45 10% 60%;
-    --accent: 45 100% 51%;
-    --accent-foreground: 0 0% 0%;
+    --background: 222 30% 4%;
+    --foreground: 45 100% 95%;
+    --card: 222 28% 7%;
+    --card-foreground: 45 100% 95%;
+    --popover: 222 28% 7%;
+    --popover-foreground: 45 100% 95%;
+    --primary: 45 100% 55%;
+    --primary-foreground: 222 30% 4%;
+    --secondary: 222 25% 13%;
+    --secondary-foreground: 45 100% 95%;
+    --muted: 222 22% 16%;
+    --muted-foreground: 45 60% 60%;
+    --accent: 45 100% 55%;
+    --accent-foreground: 222 30% 4%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 45 100% 51%;
+    --border: 222 22% 18%;
+    --input: 222 22% 18%;
+    --ring: 45 100% 55%;
   }
 }
 
@@ -56,4 +56,101 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Starry galaxy background ── */
+.stars-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stars-layer::before,
+.stars-layer::after {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  width: 300%;
+  height: 300%;
+}
+
+/* Small stars — dense, slow drift */
+.stars-layer::before {
+  background-image:
+    radial-gradient(1px 1px at 10%  8%,  rgba(253,224,71,0.95) 0%, transparent 100%),
+    radial-gradient(1px 1px at 23%  19%, rgba(253,224,71,0.70) 0%, transparent 100%),
+    radial-gradient(1px 1px at 37%  4%,  rgba(255,255,255,0.80) 0%, transparent 100%),
+    radial-gradient(1px 1px at 52%  31%, rgba(253,224,71,0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 64%  13%, rgba(255,255,255,0.90) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78%  22%, rgba(253,224,71,0.75) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88%  7%,  rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 5%   42%, rgba(253,224,71,0.85) 0%, transparent 100%),
+    radial-gradient(1px 1px at 17%  56%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(1px 1px at 29%  47%, rgba(253,224,71,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 43%  63%, rgba(255,255,255,0.80) 0%, transparent 100%),
+    radial-gradient(1px 1px at 58%  50%, rgba(253,224,71,0.90) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72%  38%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 83%  58%, rgba(253,224,71,0.75) 0%, transparent 100%),
+    radial-gradient(1px 1px at 93%  44%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(1px 1px at 8%   72%, rgba(253,224,71,0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 19%  83%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(1px 1px at 34%  77%, rgba(253,224,71,0.80) 0%, transparent 100%),
+    radial-gradient(1px 1px at 47%  89%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 61%  74%, rgba(253,224,71,0.70) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75%  92%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(1px 1px at 86%  80%, rgba(253,224,71,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 96%  68%, rgba(255,255,255,0.75) 0%, transparent 100%),
+    radial-gradient(1px 1px at 3%   91%, rgba(253,224,71,0.50) 0%, transparent 100%),
+    radial-gradient(1px 1px at 14%  97%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 26%  33%, rgba(253,224,71,0.80) 0%, transparent 100%),
+    radial-gradient(1px 1px at 41%  25%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55%  17%, rgba(253,224,71,0.90) 0%, transparent 100%),
+    radial-gradient(1px 1px at 69%  29%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80%  14%, rgba(253,224,71,0.75) 0%, transparent 100%);
+  animation: drift-stars 90s linear infinite;
+}
+
+/* Larger glowing stars — sparser, faster */
+.stars-layer::after {
+  background-image:
+    radial-gradient(2px 2px at 15%  12%, rgba(253,224,71,1.00) 0%, transparent 100%),
+    radial-gradient(2px 2px at 31%  28%, rgba(255,255,255,0.90) 0%, transparent 100%),
+    radial-gradient(2px 2px at 48%  9%,  rgba(253,224,71,0.95) 0%, transparent 100%),
+    radial-gradient(2px 2px at 63%  35%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(2px 2px at 79%  18%, rgba(253,224,71,1.00) 0%, transparent 100%),
+    radial-gradient(2px 2px at 91%  42%, rgba(255,255,255,0.90) 0%, transparent 100%),
+    radial-gradient(2px 2px at 7%   55%, rgba(253,224,71,0.85) 0%, transparent 100%),
+    radial-gradient(2px 2px at 22%  67%, rgba(255,255,255,0.95) 0%, transparent 100%),
+    radial-gradient(2px 2px at 38%  80%, rgba(253,224,71,0.90) 0%, transparent 100%),
+    radial-gradient(2px 2px at 54%  72%, rgba(255,255,255,0.80) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70%  88%, rgba(253,224,71,0.95) 0%, transparent 100%),
+    radial-gradient(2px 2px at 85%  61%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(3px 3px at 20%  45%, rgba(253,224,71,0.70) 0%, transparent 100%),
+    radial-gradient(3px 3px at 50%  55%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(3px 3px at 75%  30%, rgba(253,224,71,0.75) 0%, transparent 100%);
+  animation: drift-stars 60s linear infinite reverse;
+}
+
+@keyframes drift-stars {
+  from { transform: translateY(0); }
+  to   { transform: translateY(33.333%); }
+}
+
+/* Twinkle animation for certain stars */
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.star-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Nebula glow overlays used inside galaxy sections */
+.nebula-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
 }

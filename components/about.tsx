@@ -5,22 +5,22 @@ import { Gamepad2 } from "lucide-react";
 export function About() {
   return (
     <section id="about" className="py-24 bg-card relative overflow-hidden">
+      {/* Starry galaxy background */}
+      <div className="stars-layer" />
+      {/* Nebula glow */}
+      <div className="nebula-glow absolute w-96 h-96 top-[-4rem] right-[-4rem] opacity-20" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.5) 0%, transparent 70%)" }} />
+      <div className="nebula-glow absolute w-80 h-80 bottom-[-2rem] left-[10%] opacity-10" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.6) 0%, transparent 70%)" }} />
+
       {/* Decorative stripe pattern */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - Content */}
           <div className="space-y-8">
-            <div className="space-y-4">
-              <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-                About
-              </p>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-                From Crafting Blocks to Creating{" "}
-                <span className="text-primary">Epic Content</span>
-              </h2>
-            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
+              <span className="text-primary">About me</span>
+            </h2>
 
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>

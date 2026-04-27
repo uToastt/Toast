@@ -48,9 +48,7 @@ export function Footer() {
               )}
               <span className="font-display font-bold text-xl text-foreground">TOAST</span>
             </Link>
-            <p className="text-muted-foreground max-w-sm">
-              Minecraft content creator bringing epic adventures, insane builds, and unforgettable gaming moments to viewers worldwide.
-            </p>
+
             <div className="flex gap-4">
               <Link
                 href="https://www.youtube.com/@Taostt"

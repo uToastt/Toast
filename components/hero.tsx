@@ -24,36 +24,19 @@ export function Hero() {
   const mainChannel = channels?.["@Taostt"];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              45deg,
-              hsl(45 100% 51%) 0,
-              hsl(45 100% 51%) 1px,
-              transparent 0,
-              transparent 50%
-            )`,
-            backgroundSize: "30px 30px",
-          }}
-        />
-      </div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: "hsl(222 35% 2%)" }}>
+      {/* Deep void vignette */}
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, hsl(222 30% 5%) 0%, hsl(222 40% 1%) 100%)" }} />
 
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+      {/* Subtle gold glow spots */}
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.06) 0%, transparent 70%)" }} />
+      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.05) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-                Minecraft Content Creator
-              </p>
               <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold text-balance">
                 I am{" "}
                 <span className="text-primary relative">
@@ -73,10 +56,6 @@ export function Hero() {
                   </svg>
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-md leading-relaxed">
-                Building worlds, breaking blocks, and bringing epic adventures
-                to players around the globe.
-              </p>
             </div>
 
             <div className="flex flex-wrap gap-4">

@@ -12,11 +12,11 @@ interface PlaylistVideo {
 
 const CHANNEL_ID = "UCqKaR6Z3WCJ_RW0mEJwJ4Uw"; // @Taostt channel ID
 
-async function fetchPopularVideos(): Promise<PlaylistVideo[]> {
+async function fetchRecentVideos(): Promise<PlaylistVideo[]> {
   try {
-    // Fetch the YouTube channel's videos tab with popular sort
+    // Fetch the YouTube channel's videos tab (default sort is by date/recent)
     const response = await fetch(
-      `https://www.youtube.com/@Taostt/videos?sort=p`,
+      `https://www.youtube.com/@Taostt/videos`,
       {
         headers: {
           "User-Agent":
@@ -93,13 +93,13 @@ async function fetchPopularVideos(): Promise<PlaylistVideo[]> {
 
     return videos;
   } catch (error) {
-    console.error("Error fetching popular videos:", error);
+    console.error("Error fetching recent videos:", error);
     return [];
   }
 }
 
 export async function GET() {
-  const videos = await fetchPopularVideos();
+  const videos = await fetchRecentVideos();
 
   return NextResponse.json(
     { 

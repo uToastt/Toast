@@ -24,13 +24,13 @@ export function Hero() {
   const mainChannel = channels?.["@Taostt"];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: "hsl(222 35% 2%)" }}>
-      {/* Deep void vignette */}
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, hsl(222 30% 5%) 0%, hsl(222 40% 1%) 100%)" }} />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+      {/* Background - adapts to theme */}
+      <div className="absolute inset-0 dark:bg-black bg-white" />
 
       {/* Subtle gold glow spots */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.06) 0%, transparent 70%)" }} />
-      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.05) 0%, transparent 70%)" }} />
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.15) 0%, transparent 70%)" }} />
+      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.12) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -77,7 +77,7 @@ export function Hero() {
 
             {/* Social Links */}
             <div className="flex items-center gap-6 pt-4">
-              <span className="text-muted-foreground text-sm">Follow me:</span>
+              <span className="text-muted-foreground text-sm">Socials:</span>
               <div className="flex gap-4">
                 <Link
                   href="https://www.youtube.com/@Taostt"

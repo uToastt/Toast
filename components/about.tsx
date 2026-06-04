@@ -33,7 +33,7 @@ export function About() {
 
             {/* Content Types */}
             <div className="flex flex-wrap gap-3">
-              {["Scripted Series", "Dystopian Universe", "Minecraft", "Storytelling"].map(
+              {["Content Creator", "Gaming", "YouTube"].map(
                 (tag) => (
                   <span
                     key={tag}

@@ -20,16 +20,10 @@ export function Videos() {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center space-y-4 mb-16">
-          <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-            Latest Content
-          </p>
+        <div className="text-center mb-16">
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-            Most Popular <span className="text-primary">Videos</span>
+            Op <span className="text-primary">Videos</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Check out my most popular videos and join the community on epic Minecraft adventures.
-          </p>
         </div>
 
         {/* Loading State */}

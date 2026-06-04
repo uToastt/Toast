@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useYouTubeStats } from "@/lib/use-youtube-stats";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
   { label: "Home", href: "#" },
@@ -54,6 +55,7 @@ export function Navigation() {
                 {item.label}
               </Link>
             ))}
+            <ThemeToggle />
             <Link
               href="https://www.youtube.com/@Taostt?sub_confirmation=1"
               target="_blank"
@@ -87,6 +89,10 @@ export function Navigation() {
                   {item.label}
                 </Link>
               ))}
+              <div className="flex items-center gap-4 py-2">
+                <span className="text-muted-foreground text-sm">Theme:</span>
+                <ThemeToggle />
+              </div>
               <Link
                 href="https://www.youtube.com/@Taostt?sub_confirmation=1"
                 target="_blank"

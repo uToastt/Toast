@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePlaylist } from "@/lib/use-playlist";
@@ -27,17 +27,23 @@ export function Videos() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // autoplay (pauses on hover)
+  const goNext = () => {
+    setIndex((prev) => (prev + 1) % safeVideos.length);
+  };
+
+  const goPrev = () => {
+    setIndex((prev) =>
+      prev === 0 ? safeVideos.length - 1 : prev - 1
+    );
+  };
+
+  // autoplay
   useEffect(() => {
     if (!safeVideos.length) return;
 
-    const start = () => {
-      intervalRef.current = setInterval(() => {
-        setIndex((prev) => (prev + 1) % safeVideos.length);
-      }, 4500);
-    };
-
-    start();
+    intervalRef.current = setInterval(() => {
+      setIndex((prev) => (prev + 1) % safeVideos.length);
+    }, 4500);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -50,13 +56,13 @@ export function Videos() {
 
   const resume = () => {
     if (!safeVideos.length) return;
-    pause();
+
     intervalRef.current = setInterval(() => {
       setIndex((prev) => (prev + 1) % safeVideos.length);
     }, 4500);
   };
 
-  // drag/swipe logic
+  // swipe
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -83,11 +89,9 @@ export function Videos() {
 
       if (Math.abs(diff) > 50) {
         if (diff < 0) {
-          setIndex((prev) => (prev + 1) % safeVideos.length);
+          goNext();
         } else {
-          setIndex((prev) =>
-            prev === 0 ? safeVideos.length - 1 : prev - 1
-          );
+          goPrev();
         }
       }
     };
@@ -95,7 +99,6 @@ export function Videos() {
     el.addEventListener("mousedown", onDown);
     el.addEventListener("mouseup", onUp);
     el.addEventListener("mouseleave", onUp);
-
     el.addEventListener("touchstart", onDown);
     el.addEventListener("touchend", onUp);
 
@@ -131,7 +134,7 @@ export function Videos() {
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold">
-            op <span className="text-primary">Videos</span>
+            OP <span className="text-primary">Videos</span>
           </h2>
         </div>
 
@@ -142,6 +145,24 @@ export function Videos() {
           onMouseEnter={pause}
           onMouseLeave={resume}
         >
+
+          {/* LEFT ARROW */}
+          <button
+            onClick={goPrev}
+            className="hidden md:flex absolute left-0 z-30 bg-black/40 hover:bg-black/60 p-3 rounded-full"
+          >
+            <ChevronLeft className="text-white w-6 h-6" />
+          </button>
+
+          {/* RIGHT ARROW */}
+          <button
+            onClick={goNext}
+            className="hidden md:flex absolute right-0 z-30 bg-black/40 hover:bg-black/60 p-3 rounded-full"
+          >
+            <ChevronRight className="text-white w-6 h-6" />
+          </button>
+
+          {/* SLIDES */}
           <div className="relative w-full max-w-4xl aspect-video">
 
             {safeVideos.map((video, i) => {
@@ -169,7 +190,7 @@ export function Videos() {
 
                     <div className="absolute inset-0 bg-black/30" />
 
-                    {/* Play button */}
+                    {/* Play */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-primary/90 p-5 rounded-full hover:scale-110 transition">
                         <Play className="w-10 h-10 text-white fill-current" />
@@ -182,6 +203,7 @@ export function Videos() {
                         {video.title}
                       </h3>
                     </div>
+
                   </div>
                 </Link>
               );
@@ -207,7 +229,7 @@ export function Videos() {
           <Link
             href={CHANNEL_URL}
             target="_blank"
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg"
+            className="inline-flex items-center gap-2 bg-primary text-black px-6 py-3 rounded-lg font-semibold"
           >
             View All on YouTube
           </Link>

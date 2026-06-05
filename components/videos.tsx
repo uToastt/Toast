@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePlaylist } from "@/lib/use-playlist";
@@ -24,97 +24,100 @@ export function Videos() {
   );
 
   const [index, setIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const goNext = () => {
-    setIndex((prev) => (prev + 1) % safeVideos.length);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  // drag physics
+  const drag = useRef({
+    isDown: false,
+    startX: 0,
+    currentX: 0,
+    velocity: 0,
+    lastTime: 0,
+  });
+
+  const requestRef = useRef<number | null>(null);
+
+  const clampIndex = (i: number) => {
+    if (!safeVideos.length) return 0;
+    return (i + safeVideos.length) % safeVideos.length;
   };
 
-  const goPrev = () => {
-    setIndex((prev) =>
-      prev === 0 ? safeVideos.length - 1 : prev - 1
-    );
-  };
+  const goTo = (i: number) => setIndex(clampIndex(i));
 
   // autoplay
   useEffect(() => {
     if (!safeVideos.length) return;
 
-    intervalRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % safeVideos.length);
-    }, 4500);
+    const t = setInterval(() => {
+      setIndex((p) => clampIndex(p + 1));
+    }, 5000);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => clearInterval(t);
   }, [safeVideos.length]);
 
-  const pause = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
+  // inertia animation loop
+  const animate = () => {
+    const d = drag.current;
 
-  const resume = () => {
-    if (!safeVideos.length) return;
+    if (!d.isDown && Math.abs(d.velocity) > 0.01) {
+      d.velocity *= 0.92;
+      d.currentX += d.velocity;
 
-    intervalRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % safeVideos.length);
-    }, 4500);
-  };
-
-  // swipe
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    let startX = 0;
-    let isDown = false;
-
-    const onDown = (e: MouseEvent | TouchEvent) => {
-      isDown = true;
-      startX =
-        "touches" in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-    };
-
-    const onUp = (e: MouseEvent | TouchEvent) => {
-      if (!isDown) return;
-      isDown = false;
-
-      const endX =
-        "changedTouches" in e
-          ? e.changedTouches[0].clientX
-          : (e as MouseEvent).clientX;
-
-      const diff = endX - startX;
-
-      if (Math.abs(diff) > 50) {
-        if (diff < 0) {
-          goNext();
-        } else {
-          goPrev();
-        }
+      if (Math.abs(d.currentX) > 120) {
+        const direction = d.currentX > 0 ? -1 : 1;
+        goTo(index + direction);
+        d.currentX = 0;
+        d.velocity = 0;
       }
-    };
+    }
 
-    el.addEventListener("mousedown", onDown);
-    el.addEventListener("mouseup", onUp);
-    el.addEventListener("mouseleave", onUp);
-    el.addEventListener("touchstart", onDown);
-    el.addEventListener("touchend", onUp);
+    requestRef.current = requestAnimationFrame(animate);
+  };
 
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
     return () => {
-      el.removeEventListener("mousedown", onDown);
-      el.removeEventListener("mouseup", onUp);
-      el.removeEventListener("mouseleave", onUp);
-      el.removeEventListener("touchstart", onDown);
-      el.removeEventListener("touchend", onUp);
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [safeVideos.length]);
+  }, [index]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    drag.current.isDown = true;
+    drag.current.startX = e.clientX;
+    drag.current.currentX = 0;
+    drag.current.velocity = 0;
+    drag.current.lastTime = Date.now();
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current.isDown) return;
+
+    const now = Date.now();
+    const dx = e.clientX - drag.current.startX;
+
+    const dt = now - drag.current.lastTime || 16;
+
+    drag.current.velocity = (dx - drag.current.currentX) / dt;
+    drag.current.currentX = dx;
+    drag.current.lastTime = now;
+
+    if (Math.abs(dx) > 80) {
+      if (dx > 0) goTo(index - 1);
+      else goTo(index + 1);
+
+      drag.current.isDown = false;
+    }
+  };
+
+  const onPointerUp = () => {
+    drag.current.isDown = false;
+  };
 
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin w-8 h-8 text-primary" />
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -127,105 +130,108 @@ export function Videos() {
     );
   }
 
-  return (
-    <section className="py-24 bg-background overflow-hidden">
-      <div className="container mx-auto px-4">
+  const active = safeVideos[index];
 
-        {/* Header */}
+  return (
+    <section className="relative py-24 overflow-hidden">
+
+      {/* 🔥 blurred background */}
+      <div className="absolute inset-0 scale-110">
+        <Image
+          src={active.thumbnail}
+          alt=""
+          fill
+          className="object-cover blur-3xl opacity-40 scale-125"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      <div className="relative container mx-auto px-4">
+
+        {/* header */}
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold">
+          <h2 className="text-4xl font-bold text-white">
             OP <span className="text-primary">Videos</span>
           </h2>
         </div>
 
-        {/* Carousel */}
+        {/* CAROUSEL */}
         <div
-          ref={containerRef}
-          className="relative flex justify-center items-center"
-          onMouseEnter={pause}
-          onMouseLeave={resume}
+          ref={trackRef}
+          className="flex justify-center items-center gap-6 select-none"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
         >
 
-          {/* LEFT ARROW */}
-          <button
-            onClick={goPrev}
-            className="hidden md:flex absolute left-0 z-30 bg-black/40 hover:bg-black/60 p-3 rounded-full"
-          >
-            <ChevronLeft className="text-white w-6 h-6" />
-          </button>
+          {safeVideos.map((video, i) => {
+            const offset = i - index;
 
-          {/* RIGHT ARROW */}
-          <button
-            onClick={goNext}
-            className="hidden md:flex absolute right-0 z-30 bg-black/40 hover:bg-black/60 p-3 rounded-full"
-          >
-            <ChevronRight className="text-white w-6 h-6" />
-          </button>
+            const scale = offset === 0 ? 1 : 0.8;
+            const opacity = Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.3;
+            const x = offset * 260;
 
-          {/* SLIDES */}
-          <div className="relative w-full max-w-4xl aspect-video">
+            return (
+              <Link
+                key={video.id}
+                href={video.url}
+                target="_blank"
+                className="absolute transition-all duration-500"
+                style={{
+                  transform: `translateX(${x}px) scale(${scale})`,
+                  opacity,
+                  zIndex: offset === 0 ? 10 : 1,
+                }}
+              >
+                <div className="relative w-[420px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
 
-            {safeVideos.map((video, i) => {
-              const active = i === index;
+                  <Image
+                    src={video.thumbnail}
+                    alt={video.title}
+                    fill
+                    className="object-cover"
+                  />
 
-              return (
-                <Link
-                  key={video.id}
-                  href={video.url}
-                  target="_blank"
-                  className={`absolute inset-0 transition-all duration-700 ease-out ${
-                    active
-                      ? "opacity-100 scale-100 z-20"
-                      : "opacity-0 scale-95 z-0 pointer-events-none"
-                  }`}
-                >
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+                  {/* overlay */}
+                  <div className="absolute inset-0 bg-black/30" />
 
-                    <Image
-                      src={video.thumbnail}
-                      alt={video.title}
-                      fill
-                      className="object-cover"
-                    />
-
-                    <div className="absolute inset-0 bg-black/30" />
-
-                    {/* Play */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-primary/90 p-5 rounded-full hover:scale-110 transition">
-                        <Play className="w-10 h-10 text-white fill-current" />
-                      </div>
+                  {/* play */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-primary/90 p-5 rounded-full hover:scale-110 transition">
+                      <Play className="w-10 h-10 text-white fill-current" />
                     </div>
-
-                    {/* Title */}
-                    <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent">
-                      <h3 className="text-white text-lg font-semibold line-clamp-2">
-                        {video.title}
-                      </h3>
-                    </div>
-
                   </div>
-                </Link>
-              );
-            })}
-          </div>
+
+                  {/* title */}
+                  <div className="absolute bottom-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <p className="text-white font-semibold line-clamp-2">
+                      {video.title}
+                    </p>
+                  </div>
+
+                </div>
+              </Link>
+            );
+          })}
+
         </div>
 
         {/* dots */}
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="flex justify-center gap-2 mt-10">
           {safeVideos.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
               className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-primary" : "w-2 bg-gray-500"
+                i === index ? "w-6 bg-primary" : "w-2 bg-white/40"
               }`}
             />
           ))}
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           <Link
             href={CHANNEL_URL}
             target="_blank"

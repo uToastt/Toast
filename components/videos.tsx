@@ -10,6 +10,8 @@ const CHANNEL_URL = "https://www.youtube.com/@Taostt";
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
+  console.log("[v0] Videos state:", { videosCount: videos.length, isLoading, isError });
+
   return (
     <section id="videos" className="py-24 bg-background relative overflow-hidden">
       {/* Starry galaxy background */}

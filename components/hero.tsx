@@ -26,19 +26,31 @@ export function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background - adapts to theme: yellow in light, black in dark */}
-      <div className="absolute inset-0 bg-[hsl(45,100%,50%)] dark:bg-black" />
+      {/* Background - warm golden gradient in light, black in dark */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-yellow-100 to-orange-100 dark:from-black dark:via-black dark:to-black" />
       
-      {/* Gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/10 dark:to-yellow-500/5" />
+      {/* Gradient mesh overlay for depth in light mode */}
+      <div className="absolute inset-0 dark:hidden" style={{ 
+        background: `
+          radial-gradient(ellipse at 20% 20%, rgba(251,191,36,0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.2) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 30%, rgba(253,224,71,0.25) 0%, transparent 40%),
+          radial-gradient(ellipse at 30% 70%, rgba(234,179,8,0.15) 0%, transparent 45%)
+        `
+      }} />
+      
+      {/* Subtle pattern overlay for texture in light mode */}
+      <div className="absolute inset-0 opacity-[0.03] dark:hidden" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+      }} />
 
       {/* Interactive particle background */}
       <InteractiveBackground />
 
-      {/* Subtle glow spots */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none opacity-30 dark:opacity-100" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)" }} />
-      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none opacity-30 dark:opacity-100" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.25) 0%, transparent 70%)" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%)" }} />
+      {/* Glow spots - different for each theme */}
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%)" }} />
+      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none opacity-50 dark:opacity-30" style={{ background: "radial-gradient(circle, rgba(253,224,71,0.2) 0%, transparent 60%)" }} />
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">

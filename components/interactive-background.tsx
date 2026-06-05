@@ -73,9 +73,9 @@ export function InteractiveBackground() {
       const particles = particlesRef.current;
       const mouse = mouseRef.current;
 
-      // Colors based on theme
-      const particleColor = isDark ? "250, 204, 21" : "255, 255, 255";
-      const lineColor = isDark ? "250, 204, 21" : "255, 255, 255";
+      // Colors based on theme - amber/gold tones for both, darker in light mode for visibility
+      const particleColor = isDark ? "250, 204, 21" : "180, 120, 20";
+      const lineColor = isDark ? "250, 204, 21" : "180, 120, 20";
 
       particles.forEach((particle, i) => {
         // Calculate distance from mouse

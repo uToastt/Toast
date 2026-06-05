@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePlaylist, formatViews } from "@/lib/use-playlist";
 
-const PLAYLIST_URL = "https://youtube.com/playlist?list=PLCgYlEtkXxo8MS5EErbrhfFB4w1lPsjwH";
+const CHANNEL_URL = "https://www.youtube.com/@Taostt";
 
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
@@ -39,7 +39,7 @@ export function Videos() {
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">Unable to load videos right now.</p>
             <Link
-              href={PLAYLIST_URL}
+              href={CHANNEL_URL}
               target="_blank"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
             >
@@ -107,19 +107,27 @@ export function Videos() {
         {/* Empty State */}
         {!isLoading && !isError && videos.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No videos in the playlist yet.</p>
+            <p className="text-muted-foreground mb-4">No videos available right now.</p>
+            <Link
+              href={CHANNEL_URL}
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+            >
+              <Play className="w-5 h-5" />
+              Visit Channel
+            </Link>
           </div>
         )}
 
         {/* CTA */}
         <div className="text-center mt-12">
           <Link
-            href={PLAYLIST_URL}
+            href={CHANNEL_URL}
             target="_blank"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-all hover:scale-105"
           >
             <Play className="w-5 h-5" />
-            View Full Playlist on YouTube
+            View All Videos on YouTube
           </Link>
         </div>
       </div>

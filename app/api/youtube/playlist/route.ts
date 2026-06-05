@@ -14,88 +14,76 @@ const CHANNEL_ID = "UCqKaR6Z3WCJ_RW0mEJwJ4Uw"; // @Taostt channel ID
 
 async function fetchRecentVideos(): Promise<PlaylistVideo[]> {
   try {
-    // Fetch the YouTube channel's videos tab (default sort is by date/recent)
+    // Use YouTube RSS feed - more reliable than scraping HTML
     const response = await fetch(
-      `https://www.youtube.com/@Taostt/videos`,
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
       {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept-Language": "en-US,en;q=0.9",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },
         next: { revalidate: 1800 }, // Cache for 30 minutes
       }
     );
 
     if (!response.ok) {
-      console.error("Failed to fetch channel videos:", response.status);
+      console.error("[v0] Failed to fetch RSS feed:", response.status);
       return [];
     }
 
-    const html = await response.text();
-
-    // Extract initial data JSON from the page
-    const initialDataMatch = html.match(/var ytInitialData = ({[\s\S]*?});/);
-    if (!initialDataMatch) {
-      console.error("Could not find ytInitialData");
-      return [];
-    }
-
-    const initialData = JSON.parse(initialDataMatch[1]);
-
-    // Navigate to tab contents - for videos tab with popular sort
-    const tabs = initialData?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
-    let videoContents: any[] = [];
-
-    // Find the videos tab
-    for (const tab of tabs) {
-      const tabRenderer = tab?.tabRenderer;
-      if (tabRenderer?.content) {
-        const richGridContents =
-          tabRenderer.content?.richGridRenderer?.contents || [];
-        videoContents = richGridContents;
-        break;
-      }
-    }
-
+    const xml = await response.text();
+    
+    // Parse XML to extract video entries
     const videos: PlaylistVideo[] = [];
-
-    for (const item of videoContents) {
-      const videoRenderer = item?.richItemRenderer?.content?.videoRenderer;
-      if (!videoRenderer) continue;
-
-      const videoId = videoRenderer.videoId;
-      const title = videoRenderer.title?.runs?.[0]?.text || "Untitled";
+    
+    // Match all entry elements
+    const entryMatches = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+    
+    for (const entry of entryMatches.slice(0, 12)) {
+      // Extract video ID
+      const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+      const videoId = videoIdMatch?.[1] || "";
       
-      // Get best thumbnail
-      const thumbnails = videoRenderer.thumbnail?.thumbnails || [];
-      const thumbnail = thumbnails[thumbnails.length - 1]?.url || "";
+      // Extract title
+      const titleMatch = entry.match(/<title>([^<]+)<\/title>/);
+      const title = titleMatch?.[1] || "Untitled";
       
-      // Get duration
-      const duration = videoRenderer.lengthText?.simpleText || "0:00";
+      // Extract published date
+      const publishedMatch = entry.match(/<published>([^<]+)<\/published>/);
+      const publishedAt = publishedMatch?.[1] || "";
       
-      // Get view count from shortcuts
-      const viewCountText = videoRenderer.shortBylineText?.simpleText || 
-                           videoRenderer.viewCountText?.simpleText || 
-                           videoRenderer.metrics?.[0]?.metricRenderer?.label?.simpleText || "";
-      const views = viewCountText.replace(" views", "").trim() || "0";
-
-      videos.push({
-        id: videoId,
-        title,
-        thumbnail: thumbnail.split("?")[0], // Remove query params for cleaner URL
-        duration,
-        views,
-        publishedAt: "",
-        url: `https://www.youtube.com/watch?v=${videoId}`,
-      });
+      // Extract view count from media:statistics
+      const viewsMatch = entry.match(/views="(\d+)"/);
+      const views = viewsMatch?.[1] || "0";
+      
+      if (videoId) {
+        videos.push({
+          id: videoId,
+          title: decodeHTMLEntities(title),
+          thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          duration: "", // RSS doesn't provide duration
+          views,
+          publishedAt,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+        });
+      }
     }
 
     return videos;
   } catch (error) {
-    console.error("Error fetching recent videos:", error);
+    console.error("[v0] Error fetching recent videos:", error);
     return [];
   }
+}
+
+// Helper to decode HTML entities
+function decodeHTMLEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
 }
 
 export async function GET() {

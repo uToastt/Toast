@@ -5,10 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePlaylist, formatViews } from "@/lib/use-playlist";
 
-const PLAYLIST_URL = "https://youtube.com/playlist?list=PLCgYlEtkXxo8MS5EErbrhfFB4w1lPsjwH";
+const CHANNEL_URL = "https://www.youtube.com/@Taostt";
 
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
+
+  console.log("[v0] Videos state:", { videosCount: videos.length, isLoading, isError });
 
   return (
     <section id="videos" className="py-24 bg-background relative overflow-hidden">
@@ -20,16 +22,10 @@ export function Videos() {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center space-y-4 mb-16">
-          <p className="text-primary font-display uppercase tracking-widest text-sm font-semibold">
-            Latest Content
-          </p>
+        <div className="text-center mb-16">
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-            Most Popular <span className="text-primary">Videos</span>
+            Op <span className="text-primary">Videos</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Check out my most popular videos and join the community on epic Minecraft adventures.
-          </p>
         </div>
 
         {/* Loading State */}
@@ -45,7 +41,7 @@ export function Videos() {
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">Unable to load videos right now.</p>
             <Link
-              href={PLAYLIST_URL}
+              href={CHANNEL_URL}
               target="_blank"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
             >
@@ -113,19 +109,27 @@ export function Videos() {
         {/* Empty State */}
         {!isLoading && !isError && videos.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No videos in the playlist yet.</p>
+            <p className="text-muted-foreground mb-4">No videos available right now.</p>
+            <Link
+              href={CHANNEL_URL}
+              target="_blank"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+            >
+              <Play className="w-5 h-5" />
+              Visit Channel
+            </Link>
           </div>
         )}
 
         {/* CTA */}
         <div className="text-center mt-12">
           <Link
-            href={PLAYLIST_URL}
+            href={CHANNEL_URL}
             target="_blank"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-all hover:scale-105"
           >
             <Play className="w-5 h-5" />
-            View Full Playlist on YouTube
+            View All Videos on YouTube
           </Link>
         </div>
       </div>

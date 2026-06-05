@@ -62,16 +62,6 @@ export function JoinServer() {
                 </div>
               </div>
 
-              {/* Port */}
-              <div className="space-y-3">
-                <p className="text-sm font-semibold text-primary uppercase tracking-widest text-center">
-                  Port
-                </p>
-                <p className="text-center font-mono text-lg text-foreground">
-                  25601
-                </p>
-              </div>
-
               {/* Version */}
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-primary uppercase tracking-widest text-center">

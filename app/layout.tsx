@@ -39,8 +39,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'light') {
+                  document.documentElement.classList.remove('dark');
+                } else {
+                  document.documentElement.classList.add('dark');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased bg-background`}>
         {children}
       </body>
     </html>

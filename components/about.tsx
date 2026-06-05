@@ -31,19 +31,7 @@ export function About() {
               </p>
             </div>
 
-            {/* Content Types */}
-            <div className="flex flex-wrap gap-3">
-              {["Scripted Series", "Dystopian Universe", "Minecraft", "Storytelling"].map(
-                (tag) => (
-                  <span
-                    key={tag}
-                    className="px-4 py-2 bg-muted text-muted-foreground rounded-lg text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-all cursor-default"
-                  >
-                    {tag}
-                  </span>
-                )
-              )}
-            </div>
+
           </div>
 
           {/* Right - Years Gaming Highlight */}

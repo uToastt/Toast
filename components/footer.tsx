@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Youtube, Heart } from "lucide-react";
+import { Youtube } from "lucide-react";
 import { useYouTubeStats } from "@/lib/use-youtube-stats";
 
 // Discord icon component
@@ -118,12 +118,9 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-border mt-12 pt-8 flex items-center justify-center">
           <p className="text-muted-foreground text-sm">
             {new Date().getFullYear()} Toast. All rights reserved.
-          </p>
-          <p className="text-muted-foreground text-sm flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 text-primary fill-current" /> for the gaming community
           </p>
         </div>
       </div>

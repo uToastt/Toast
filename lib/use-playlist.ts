@@ -1,46 +1,80 @@
-"use client";
+import { useEffect, useState } from "react";
 
-import Link from "next/link";
+export type Video = {
+  id: string;
+  title: string;
+  thumbnail: string;
+  url: string;
+  publishedAt: string;
+};
 
-const CHANNEL_URL = "https://www.youtube.com/@Taostt";
+type ApiResponse = {
+  videos: Video[];
+  updatedAt: string;
+};
 
-// Replace this with your real channel ID (starts with UC...)
-const CHANNEL_ID = "UCxxxxxxxxxxxxxxxxxxxx";
+export function usePlaylist() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
-export function Videos() {
-  return (
-    <section id="videos" className="py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold">
-            Op <span className="text-primary">Videos</span>
-          </h2>
-        </div>
+  useEffect(() => {
+    let isMounted = true;
 
-        {/* YouTube Embed Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <iframe
-              key={i}
-              className="w-full aspect-video rounded-xl"
-              src={`https://www.youtube.com/embed/videoseries?list=UUxxxxxxxxxxxxxxxxxxxx&index=${i + 1}`}
-              title="YouTube video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ))}
-        </div>
+    async function loadVideos() {
+      try {
+        setIsLoading(true);
+        setIsError(false);
 
-        <div className="text-center mt-10">
-          <Link
-            href={CHANNEL_URL}
-            target="_blank"
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg"
-          >
-            View Full Channel
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
+        const res = await fetch("/api/videos", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data: ApiResponse = await res.json();
+
+        if (!isMounted) return;
+
+        setVideos(Array.isArray(data.videos) ? data.videos : []);
+      } catch (err) {
+        console.error("[usePlaylist] failed:", err);
+        if (!isMounted) return;
+        setIsError(true);
+        setVideos([]);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    loadVideos();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return {
+    videos,
+    isLoading,
+    isError,
+  };
+}
+
+/**
+ * Formats YouTube-style view counts safely
+ */
+export function formatViews(views?: string | number) {
+  if (!views) return "";
+
+  const num = typeof views === "string" ? parseInt(views.replace(/\D/g, "")) : views;
+
+  if (isNaN(num)) return "";
+
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M views`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K views`;
+
+  return `${num} views`;
 }

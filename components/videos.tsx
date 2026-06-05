@@ -10,15 +10,35 @@ const CHANNEL_URL = "https://www.youtube.com/@Taostt";
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
-  console.log("[v0] Videos state:", { videosCount: videos.length, isLoading, isError });
+  console.log("[v0] Videos state:", {
+    videosCount: videos.length,
+    isLoading,
+    isError,
+  });
 
   return (
-    <section id="videos" className="py-24 bg-background relative overflow-hidden">
-      {/* Starry galaxy background */}
+    <section
+      id="videos"
+      className="py-24 bg-background relative overflow-hidden"
+    >
+      {/* Background effects */}
       <div className="stars-layer" />
-      {/* Nebula glow */}
-      <div className="nebula-glow absolute w-[32rem] h-[32rem] top-[-6rem] left-[-6rem] opacity-15" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.45) 0%, transparent 70%)" }} />
-      <div className="nebula-glow absolute w-96 h-96 bottom-[-4rem] right-[5%] opacity-10" style={{ background: "radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)" }} />
+
+      <div
+        className="nebula-glow absolute w-[32rem] h-[32rem] top-[-6rem] left-[-6rem] opacity-15"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(250,204,21,0.45) 0%, transparent 70%)",
+        }}
+      />
+
+      <div
+        className="nebula-glow absolute w-96 h-96 bottom-[-4rem] right-[5%] opacity-10"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
@@ -28,18 +48,23 @@ export function Videos() {
           </h2>
         </div>
 
-        {/* Loading State */}
+        {/* Loading */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <span className="ml-3 text-muted-foreground">Loading videos...</span>
+            <span className="ml-3 text-muted-foreground">
+              Loading videos...
+            </span>
           </div>
         )}
 
-        {/* Error State */}
+        {/* Error */}
         {isError && !isLoading && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">Unable to load videos right now.</p>
+            <p className="text-muted-foreground mb-4">
+              Unable to load videos right now.
+            </p>
+
             <Link
               href={CHANNEL_URL}
               target="_blank"
@@ -51,65 +76,77 @@ export function Videos() {
           </div>
         )}
 
-        {/* Video Grid */}
+        {/* Grid */}
         {!isLoading && !isError && videos.length > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {videos.slice(0, 6).map((video) => (
-              <Link
-                key={video.id}
-                href={video.url}
-                target="_blank"
-                className="group block"
-              >
-                <div className="rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
-                  {/* Thumbnail */}
-                  <div className="aspect-video relative bg-muted">
-                    {video.thumbnail ? (
-                      <Image
-                        src={video.thumbnail}
-                        alt={video.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary" />
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                        <Play className="w-8 h-8 text-primary-foreground fill-current ml-1" />
-                      </div>
-                    </div>
-                    {video.duration && (
-                      <span className="absolute bottom-3 right-3 bg-background/90 text-foreground text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {video.duration}
-                      </span>
-                    )}
-                  </div>
+            {videos.slice(0, 6).map((video) => {
+              if (!video?.id) return null;
 
-                  {/* Info */}
-                  <div className="p-4 space-y-2">
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                      {video.title}
-                    </h3>
-                    {video.views && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {formatViews(video.views)}
-                      </p>
-                    )}
+              return (
+                <Link
+                  key={video.id}
+                  href={video.url}
+                  target="_blank"
+                  className="group block"
+                >
+                  <div className="rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                    {/* Thumbnail */}
+                    <div className="aspect-video relative bg-muted">
+                      {video.thumbnail ? (
+                        <Image
+                          src={video.thumbnail}
+                          alt={video.title ?? "YouTube video"}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary" />
+                      )}
+
+                      {/* Play overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                          <Play className="w-8 h-8 text-primary-foreground fill-current ml-1" />
+                        </div>
+                      </div>
+
+                      {/* Duration */}
+                      {video.duration && (
+                        <span className="absolute bottom-3 right-3 bg-background/90 text-foreground text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {video.duration}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-4 space-y-2">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        {video.title ?? "Untitled video"}
+                      </h3>
+
+                      {video.views && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Eye className="w-4 h-4" />
+                          {formatViews(video.views)}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty */}
         {!isLoading && !isError && videos.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No videos available right now.</p>
+            <p className="text-muted-foreground mb-4">
+              No videos available right now.
+            </p>
+
             <Link
               href={CHANNEL_URL}
               target="_blank"

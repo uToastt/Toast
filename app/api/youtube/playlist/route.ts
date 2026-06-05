@@ -45,25 +45,26 @@ async function fetchRecentVideos(): Promise<PlaylistVideo[]> {
     }
     
     // Extract video data for each unique ID
-    for (const videoId of Array.from(foundIds).slice(0, 12)) {
-      // Try to find title for this video
-      const titlePattern = new RegExp(`"videoId":"${videoId}"[^}]*"title":\\{"runs":\\[\\{"text":"([^"]+)"`, 'g');
-      const titleMatch = titlePattern.exec(html);
-      
-      // Try alternate title pattern
-      const altTitlePattern = new RegExp(`"videoId":"${videoId}".*?"title":\\{"simpleText":"([^"]+)"`, 's');
-      const altTitleMatch = altTitlePattern.exec(html);
-      
-      // Try to find within a larger context
-      const contextPattern = new RegExp(`"videoRenderer":\\{[^}]*"videoId":"${videoId}"[^}]*\\}`, 'g');
-      const contextMatch = contextPattern.exec(html);
-      
-      let title = "Video";
-      if (titleMatch) {
-        title = titleMatch[1];
-      } else if (altTitleMatch) {
-        title = altTitleMatch[1];
-      }
+for (const videoId of Array.from(foundIds).slice(0, 12)) {
+  // Find the videoRenderer that belongs to this video
+  const rendererMatch = html.match(
+    new RegExp(
+      `"videoRenderer":\\{[\\s\\S]*?"videoId":"${videoId}"[\\s\\S]*?\\}`,
+      "g"
+    )
+  );
+
+  let title = "Video";
+
+  if (rendererMatch?.[0]) {
+    const titleMatch =
+      rendererMatch[0].match(/"title":\{"runs":\[\{"text":"([^"]+)"/) ||
+      rendererMatch[0].match(/"title":\{"simpleText":"([^"]+)"/);
+
+    if (titleMatch?.[1]) {
+      title = titleMatch[1];
+    }
+  }
       
       // Look for view count
       const viewPattern = new RegExp(`"videoId":"${videoId}"[\\s\\S]{0,500}"viewCountText":\\{"simpleText":"([^"]+)"`, 'g');

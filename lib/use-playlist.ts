@@ -5,12 +5,10 @@ export type Video = {
   title: string;
   thumbnail: string;
   url: string;
-  publishedAt: string;
 };
 
 type ApiResponse = {
   videos: Video[];
-  updatedAt: string;
 };
 
 export function usePlaylist() {
@@ -19,9 +17,9 @@ export function usePlaylist() {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    async function loadVideos() {
+    async function load() {
       try {
         setIsLoading(true);
         setIsError(false);
@@ -30,46 +28,41 @@ export function usePlaylist() {
           cache: "no-store",
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error("API failed");
 
         const data: ApiResponse = await res.json();
 
-        if (!isMounted) return;
+        if (!mounted) return;
 
-        setVideos(Array.isArray(data.videos) ? data.videos : []);
+        setVideos(data.videos || []);
       } catch (err) {
-        console.error("[usePlaylist] failed:", err);
-        if (!isMounted) return;
+        console.error("[usePlaylist error]", err);
+        if (!mounted) return;
+
         setIsError(true);
         setVideos([]);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     }
 
-    loadVideos();
+    load();
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
-  return {
-    videos,
-    isLoading,
-    isError,
-  };
+  return { videos, isLoading, isError };
 }
 
 /**
- * Formats YouTube-style view counts safely
+ * Optional helper (safe formatting)
  */
-export function formatViews(views?: string | number) {
+export function formatViews(views?: string) {
   if (!views) return "";
 
-  const num = typeof views === "string" ? parseInt(views.replace(/\D/g, "")) : views;
+  const num = parseInt(views.replace(/\D/g, ""));
 
   if (isNaN(num)) return "";
 

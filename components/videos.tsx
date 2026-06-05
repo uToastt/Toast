@@ -15,6 +15,8 @@ type Video = {
   url: string;
 };
 
+const RADIUS = 420;
+
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
@@ -23,69 +25,50 @@ export function Videos() {
     [videos]
   );
 
-  const [index, setIndex] = useState(0);
+  const [angle, setAngle] = useState(0);
 
-  const trackRef = useRef<HTMLDivElement | null>(null);
-
-  // drag physics
   const drag = useRef({
     isDown: false,
     startX: 0,
-    currentX: 0,
+    lastX: 0,
     velocity: 0,
     lastTime: 0,
   });
 
-  const requestRef = useRef<number | null>(null);
+  const raf = useRef<number | null>(null);
 
-  const clampIndex = (i: number) => {
-    if (!safeVideos.length) return 0;
-    return (i + safeVideos.length) % safeVideos.length;
-  };
+  const itemCount = safeVideos.length || 1;
+  const angleStep = 360 / itemCount;
 
-  const goTo = (i: number) => setIndex(clampIndex(i));
-
-  // autoplay
-  useEffect(() => {
-    if (!safeVideos.length) return;
-
-    const t = setInterval(() => {
-      setIndex((p) => clampIndex(p + 1));
-    }, 5000);
-
-    return () => clearInterval(t);
-  }, [safeVideos.length]);
-
-  // inertia animation loop
+  // 🎯 spring physics loop
   const animate = () => {
-    const d = drag.current;
+    setAngle((prev) => {
+      let next = prev + drag.current.velocity;
 
-    if (!d.isDown && Math.abs(d.velocity) > 0.01) {
-      d.velocity *= 0.92;
-      d.currentX += d.velocity;
+      // damping (spring feel)
+      drag.current.velocity *= 0.92;
 
-      if (Math.abs(d.currentX) > 120) {
-        const direction = d.currentX > 0 ? -1 : 1;
-        goTo(index + direction);
-        d.currentX = 0;
-        d.velocity = 0;
+      if (Math.abs(drag.current.velocity) < 0.01) {
+        drag.current.velocity = 0;
       }
-    }
 
-    requestRef.current = requestAnimationFrame(animate);
+      return next;
+    });
+
+    raf.current = requestAnimationFrame(animate);
   };
 
   useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate);
+    raf.current = requestAnimationFrame(animate);
     return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, [index]);
+  }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
     drag.current.isDown = true;
     drag.current.startX = e.clientX;
-    drag.current.currentX = 0;
+    drag.current.lastX = e.clientX;
     drag.current.velocity = 0;
     drag.current.lastTime = Date.now();
   };
@@ -94,20 +77,16 @@ export function Videos() {
     if (!drag.current.isDown) return;
 
     const now = Date.now();
-    const dx = e.clientX - drag.current.startX;
+    const dx = e.clientX - drag.current.lastX;
 
     const dt = now - drag.current.lastTime || 16;
 
-    drag.current.velocity = (dx - drag.current.currentX) / dt;
-    drag.current.currentX = dx;
+    drag.current.velocity = dx / dt * 20;
+
+    drag.current.lastX = e.clientX;
     drag.current.lastTime = now;
 
-    if (Math.abs(dx) > 80) {
-      if (dx > 0) goTo(index - 1);
-      else goTo(index + 1);
-
-      drag.current.isDown = false;
-    }
+    setAngle((prev) => prev + dx * 0.3);
   };
 
   const onPointerUp = () => {
@@ -116,27 +95,31 @@ export function Videos() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      <div className="flex justify-center py-20 text-white">
+        Loading...
       </div>
     );
   }
 
   if (isError || !safeVideos.length) {
     return (
-      <div className="text-center py-20 text-muted-foreground">
+      <div className="text-center py-20 text-white/60">
         No videos available
       </div>
     );
   }
 
-  const active = safeVideos[index];
+  const activeIndex = Math.round(
+    ((angle % 360) + 360) % 360 / angleStep
+  ) % itemCount;
+
+  const active = safeVideos[activeIndex];
 
   return (
-    <section className="relative py-24 overflow-hidden">
+    <section className="relative py-32 overflow-hidden bg-black">
 
-      {/* 🔥 blurred background */}
-      <div className="absolute inset-0 scale-110">
+      {/* 🌫 background blur */}
+      <div className="absolute inset-0">
         <Image
           src={active.thumbnail}
           alt=""
@@ -149,16 +132,15 @@ export function Videos() {
       <div className="relative container mx-auto px-4">
 
         {/* header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white">
-            OP <span className="text-primary">Videos</span>
+            3D <span className="text-primary">Videos</span>
           </h2>
         </div>
 
-        {/* CAROUSEL */}
+        {/* 🎡 3D RING */}
         <div
-          ref={trackRef}
-          className="flex justify-center items-center gap-6 select-none"
+          className="relative h-[500px] flex items-center justify-center perspective-[1200px]"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -166,25 +148,32 @@ export function Videos() {
         >
 
           {safeVideos.map((video, i) => {
-            const offset = i - index;
+            const theta = angle + i * angleStep;
+            const rad = (theta * Math.PI) / 180;
 
-            const scale = offset === 0 ? 1 : 0.8;
-            const opacity = Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.3;
-            const x = offset * 260;
+            const x = Math.sin(rad) * RADIUS;
+            const z = Math.cos(rad) * RADIUS;
+
+            const scale = (z + RADIUS) / (RADIUS * 2) + 0.6;
+            const opacity = scale;
 
             return (
               <Link
                 key={video.id}
                 href={video.url}
                 target="_blank"
-                className="absolute transition-all duration-500"
+                className="absolute transition-transform duration-200"
                 style={{
-                  transform: `translateX(${x}px) scale(${scale})`,
+                  transform: `
+                    translateX(${x}px)
+                    translateZ(${z}px)
+                    scale(${scale})
+                  `,
                   opacity,
-                  zIndex: offset === 0 ? 10 : 1,
+                  zIndex: Math.round(z),
                 }}
               >
-                <div className="relative w-[420px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
+                <div className="relative w-[360px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
 
                   <Image
                     src={video.thumbnail}
@@ -217,21 +206,8 @@ export function Videos() {
 
         </div>
 
-        {/* dots */}
-        <div className="flex justify-center gap-2 mt-10">
-          {safeVideos.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-primary" : "w-2 bg-white/40"
-              }`}
-            />
-          ))}
-        </div>
-
         {/* CTA */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-16">
           <Link
             href={CHANNEL_URL}
             target="_blank"

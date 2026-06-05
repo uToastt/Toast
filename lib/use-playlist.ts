@@ -1,60 +1,73 @@
-"use client";
+import { useEffect, useState } from "react";
 
-import useSWR from "swr";
-
-interface PlaylistVideo {
+export type Video = {
   id: string;
   title: string;
   thumbnail: string;
-  duration: string;
-  views: string;
-  publishedAt: string;
   url: string;
-}
+};
 
-interface PlaylistData {
-  playlistId: string;
-  videos: PlaylistVideo[];
-  updatedAt: string;
-}
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+type ApiResponse = {
+  videos: Video[];
+};
 
 export function usePlaylist() {
-  const { data, error, isLoading } = useSWR<PlaylistData>(
-    "/api/youtube/playlist",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 1800000, // 30 minutes
-    }
-  );
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
-  return {
-    videos: data?.videos || [],
-    playlistId: data?.playlistId,
-    updatedAt: data?.updatedAt,
-    isLoading,
-    isError: error,
-  };
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      try {
+        setIsLoading(true);
+        setIsError(false);
+
+        const res = await fetch("/api/videos", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) throw new Error("API failed");
+
+        const data: ApiResponse = await res.json();
+
+        if (!mounted) return;
+
+        setVideos(data.videos || []);
+      } catch (err) {
+        console.error("[usePlaylist error]", err);
+        if (!mounted) return;
+
+        setIsError(true);
+        setVideos([]);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return { videos, isLoading, isError };
 }
 
-export function formatViews(views: string): string {
-  // Already formatted (e.g., "1.2K", "500K", "1M")
-  if (/[KMB]$/i.test(views)) {
-    return views + " views";
-  }
+/**
+ * Optional helper (safe formatting)
+ */
+export function formatViews(views?: string) {
+  if (!views) return "";
 
-  // Try to parse as number
-  const num = parseInt(views.replace(/[,\s]/g, ""), 10);
-  if (isNaN(num)) return views + " views";
+  const num = parseInt(views.replace(/\D/g, ""));
 
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M views";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, "") + "K views";
-  }
-  return num.toString() + " views";
+  if (isNaN(num)) return "";
+
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M views`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K views`;
+
+  return `${num} views`;
 }

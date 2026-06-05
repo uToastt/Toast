@@ -16,7 +16,7 @@ export function InteractiveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const particlesRef = useRef<Particle[]>([]);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {

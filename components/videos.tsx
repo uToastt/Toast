@@ -1,137 +1,186 @@
 "use client";
 
-import { Play, Eye, Clock, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePlaylist, formatViews } from "@/lib/use-playlist";
+import { usePlaylist } from "@/lib/use-playlist";
 
 const CHANNEL_URL = "https://www.youtube.com/@Taostt";
+
+type Video = {
+  id: string;
+  title: string;
+  thumbnail: string;
+  url: string;
+};
 
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
-  console.log("[v0] Videos state:", { videosCount: videos.length, isLoading, isError });
+  const safeVideos: Video[] = useMemo(
+    () => (Array.isArray(videos) ? videos : []),
+    [videos]
+  );
+
+  const [index, setIndex] = useState(0);
+
+  // auto rotate (safe version)
+  useEffect(() => {
+    if (!safeVideos.length) return;
+
+    const t = setInterval(() => {
+      setIndex((p) => (p + 1) % safeVideos.length);
+    }, 5000);
+
+    return () => clearInterval(t);
+  }, [safeVideos.length]);
+
+  const getOffset = (i: number) => {
+    if (!safeVideos.length) return 0;
+    let diff = i - index;
+
+    // wrap shortest direction
+    const half = safeVideos.length / 2;
+    if (diff > half) diff -= safeVideos.length;
+    if (diff < -half) diff += safeVideos.length;
+
+    return diff;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20 text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  if (isError || !safeVideos.length) {
+    return (
+      <div className="text-center py-20 text-white/60">
+        No videos available
+      </div>
+    );
+  }
+
+  const active = safeVideos[index];
 
   return (
-    <section id="videos" className="py-24 bg-background relative overflow-hidden">
-      {/* Starry galaxy background */}
-      <div className="stars-layer" />
-      {/* Nebula glow */}
-      <div className="nebula-glow absolute w-[32rem] h-[32rem] top-[-6rem] left-[-6rem] opacity-15" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.45) 0%, transparent 70%)" }} />
-      <div className="nebula-glow absolute w-96 h-96 bottom-[-4rem] right-[5%] opacity-10" style={{ background: "radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)" }} />
+    <section className="relative py-32 overflow-hidden bg-black">
 
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
-            Op <span className="text-primary">Videos</span>
+      {/* background blur */}
+      <div className="absolute inset-0">
+        <Image
+          src={active.thumbnail}
+          alt=""
+          fill
+          className="object-cover blur-3xl opacity-40 scale-125"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      <div className="relative container mx-auto px-4">
+
+        <div className="text-center mb-14">
+          <h2 className="text-4xl font-bold text-white">
+            OP <span className="text-primary">Videos</span>
           </h2>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <span className="ml-3 text-muted-foreground">Loading videos...</span>
-          </div>
-        )}
+        {/* SPATIAL STACK (stable version) */}
+        <div className="relative h-[520px] flex items-center justify-center perspective-[1200px]">
 
-        {/* Error State */}
-        {isError && !isLoading && (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">Unable to load videos right now.</p>
-            <Link
-              href={CHANNEL_URL}
-              target="_blank"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
-            >
-              <Play className="w-5 h-5" />
-              Watch on YouTube
-            </Link>
-          </div>
-        )}
+          {safeVideos.map((video, i) => {
+            const offset = getOffset(i);
 
-        {/* Video Grid */}
-        {!isLoading && !isError && videos.length > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {videos.slice(0, 6).map((video) => (
-              <Link
+            const isActive = offset === 0;
+
+            const scale = isActive ? 1 : 0.82;
+            const x = offset * 260;
+            const rotateY = offset * -28;
+            const z = -Math.abs(offset) * 120;
+            const opacity = Math.abs(offset) > 2 ? 0 : 1 - Math.abs(offset) * 0.25;
+
+            return (
+              <div
                 key={video.id}
-                href={video.url}
-                target="_blank"
-                className="group block"
+                onClick={() => setIndex(i)}
+                className="absolute transition-all duration-500 ease-out cursor-pointer"
+                style={{
+                  transform: `
+                    translateX(${x}px)
+                    translateZ(${z}px)
+                    rotateY(${rotateY}deg)
+                    scale(${scale})
+                  `,
+                  opacity,
+                  zIndex: 100 - Math.abs(offset),
+                }}
               >
-                <div className="rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
-                  {/* Thumbnail */}
-                  <div className="aspect-video relative bg-muted">
-                    {video.thumbnail ? (
-                      <Image
-                        src={video.thumbnail}
-                        alt={video.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary" />
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                        <Play className="w-8 h-8 text-primary-foreground fill-current ml-1" />
+                <Link
+                  href={video.url}
+                  target="_blank"
+                  className="block"
+                >
+                  <div className="relative w-[420px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
+
+                    <Image
+                      src={video.thumbnail}
+                      alt={video.title}
+                      fill
+                      className="object-cover"
+                    />
+
+                    {/* overlay */}
+                    <div className="absolute inset-0 bg-black/25" />
+
+                    {/* play */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-primary/90 p-5 rounded-full hover:scale-110 transition">
+                        <Play className="w-10 h-10 text-white fill-current" />
                       </div>
                     </div>
-                    {video.duration && (
-                      <span className="absolute bottom-3 right-3 bg-background/90 text-foreground text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {video.duration}
-                      </span>
-                    )}
-                  </div>
 
-                  {/* Info */}
-                  <div className="p-4 space-y-2">
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                      {video.title}
-                    </h3>
-                    {video.views && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {formatViews(video.views)}
+                    {/* title */}
+                    <div className="absolute bottom-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
+                      <p className="text-white font-semibold line-clamp-2">
+                        {video.title}
                       </p>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+                    </div>
 
-        {/* Empty State */}
-        {!isLoading && !isError && videos.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No videos available right now.</p>
-            <Link
-              href={CHANNEL_URL}
-              target="_blank"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
-            >
-              <Play className="w-5 h-5" />
-              Visit Channel
-            </Link>
-          </div>
-        )}
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
+
+        </div>
+
+        {/* controls */}
+        <div className="flex justify-center gap-2 mt-8">
+          {safeVideos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIndex(i)}
+              className={`h-2 rounded-full transition-all ${
+                i === index ? "w-6 bg-primary" : "w-2 bg-white/40"
+              }`}
+            />
+          ))}
+        </div>
 
         {/* CTA */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-14">
           <Link
             href={CHANNEL_URL}
             target="_blank"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 bg-primary text-black px-6 py-3 rounded-lg font-semibold"
           >
-            <Play className="w-5 h-5" />
-            View All Videos on YouTube
+            View All on YouTube
           </Link>
         </div>
+
       </div>
     </section>
   );

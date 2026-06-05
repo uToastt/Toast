@@ -1,60 +1,46 @@
 "use client";
 
-import useSWR from "swr";
+import Link from "next/link";
 
-interface PlaylistVideo {
-  id: string;
-  title: string;
-  thumbnail: string;
-  duration: string;
-  views: string;
-  publishedAt: string;
-  url: string;
-}
+const CHANNEL_URL = "https://www.youtube.com/@Taostt";
 
-interface PlaylistData {
-  playlistId: string;
-  videos: PlaylistVideo[];
-  updatedAt: string;
-}
+// Replace this with your real channel ID (starts with UC...)
+const CHANNEL_ID = "UCxxxxxxxxxxxxxxxxxxxx";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+export function Videos() {
+  return (
+    <section id="videos" className="py-24 bg-background">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold">
+            Op <span className="text-primary">Videos</span>
+          </h2>
+        </div>
 
-export function usePlaylist() {
-  const { data, error, isLoading } = useSWR<PlaylistData>(
-    "/api/youtube/playlist",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 1800000, // 30 minutes
-    }
+        {/* YouTube Embed Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <iframe
+              key={i}
+              className="w-full aspect-video rounded-xl"
+              src={`https://www.youtube.com/embed/videoseries?list=UUxxxxxxxxxxxxxxxxxxxx&index=${i + 1}`}
+              title="YouTube video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link
+            href={CHANNEL_URL}
+            target="_blank"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg"
+          >
+            View Full Channel
+          </Link>
+        </div>
+      </div>
+    </section>
   );
-
-  return {
-    videos: data?.videos || [],
-    playlistId: data?.playlistId,
-    updatedAt: data?.updatedAt,
-    isLoading,
-    isError: error,
-  };
-}
-
-export function formatViews(views: string): string {
-  // Already formatted (e.g., "1.2K", "500K", "1M")
-  if (/[KMB]$/i.test(views)) {
-    return views + " views";
-  }
-
-  // Try to parse as number
-  const num = parseInt(views.replace(/[,\s]/g, ""), 10);
-  if (isNaN(num)) return views + " views";
-
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M views";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, "") + "K views";
-  }
-  return num.toString() + " views";
 }

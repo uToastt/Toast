@@ -10,114 +10,77 @@ interface PlaylistVideo {
   url: string;
 }
 
+interface VideoRendererResult {
+  videoId: string;
+  title: string;
+  duration: string;
+  views: string;
+}
+
 async function fetchRecentVideos(): Promise<PlaylistVideo[]> {
   try {
-    // Fetch the YouTube channel videos page directly
     const response = await fetch(
       "https://www.youtube.com/@Taostt/videos",
       {
         headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           "Accept-Language": "en-US,en;q=0.9",
-          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
         },
-        next: { revalidate: 900 }, // Cache for 15 minutes
+        next: { revalidate: 900 },
       }
     );
 
     if (!response.ok) {
-      console.error("[v0] Failed to fetch channel page:", response.status);
+      console.error(
+        "[v0] Failed to fetch channel page:",
+        response.status
+      );
       return [];
     }
 
     const html = await response.text();
 
-    // Find all video IDs and titles using regex patterns that work with current YT format
     const videos: PlaylistVideo[] = [];
-    
-    // Pattern to find videoId in the page
-    const videoIdPattern = /"videoId":"([a-zA-Z0-9_-]{11})"/g;
-    const foundIds = new Set<string>();
-    
-    let match;
-    while ((match = videoIdPattern.exec(html)) !== null) {
-      foundIds.add(match[1]);
-    }
-    
-    // Extract video data for each unique ID
-for (const videoId of Array.from(foundIds).slice(0, 12)) {
-  // Find the videoRenderer that belongs to this video
-  const rendererMatch = html.match(
-    new RegExp(
-      `"videoRenderer":\\{[\\s\\S]*?"videoId":"${videoId}"[\\s\\S]*?\\}`,
-      "g"
-    )
-  );
 
-  let title = "Video";
+    const jsonMatch =
+      html.match(
+        /var ytInitialData = (\{[\s\S]*?\});/
+      ) ||
+      html.match(
+        /window\["ytInitialData"\]\s*=\s*(\{[\s\S]*?\});/
+      );
 
-  if (rendererMatch?.[0]) {
-    const titleMatch =
-      rendererMatch[0].match(/"title":\{"runs":\[\{"text":"([^"]+)"/) ||
-      rendererMatch[0].match(/"title":\{"simpleText":"([^"]+)"/);
+    if (jsonMatch) {
+      try {
+        const data = JSON.parse(jsonMatch[1]);
 
-    if (titleMatch?.[1]) {
-      title = titleMatch[1];
-    }
-  }
-      
-      // Look for view count
-      const viewPattern = new RegExp(`"videoId":"${videoId}"[\\s\\S]{0,500}"viewCountText":\\{"simpleText":"([^"]+)"`, 'g');
-      const viewMatch = viewPattern.exec(html);
-      const views = viewMatch ? viewMatch[1].replace(" views", "").replace(",", "") : "";
-      
-      // Look for duration
-      const durationPattern = new RegExp(`"videoId":"${videoId}"[\\s\\S]{0,800}"lengthText":\\{"simpleText":"([^"]+)"`, 'g');
-      const durationMatch = durationPattern.exec(html);
-      const duration = durationMatch ? durationMatch[1] : "";
+        const videoItems = findVideoRenderers(data);
 
-      videos.push({
-        id: videoId,
-        title: decodeHTMLEntities(title),
-        thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-        duration,
-        views,
-        publishedAt: "",
-        url: `https://www.youtube.com/watch?v=${videoId}`,
-      });
-    }
-
-    // If regex approach failed, try JSON parsing as fallback
-    if (videos.length === 0) {
-      console.log("[v0] Regex approach found no videos, trying JSON parse...");
-      
-      // Look for ytInitialData
-      const jsonMatch = html.match(/var ytInitialData = (\{[\s\S]*?\});/);
-      if (jsonMatch) {
-        try {
-          const data = JSON.parse(jsonMatch[1]);
-          const videoItems = findVideoRenderers(data);
-          
-          for (const item of videoItems.slice(0, 12)) {
-            if (item.videoId) {
-              videos.push({
-                id: item.videoId,
-                title: item.title || "Video",
-                thumbnail: `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
-                duration: item.duration || "",
-                views: item.views || "",
-                publishedAt: "",
-                url: `https://www.youtube.com/watch?v=${item.videoId}`,
-              });
-            }
-          }
-        } catch (e) {
-          console.error("[v0] JSON parse failed:", e);
+        for (const item of videoItems.slice(0, 12)) {
+          videos.push({
+            id: item.videoId,
+            title: decodeHTMLEntities(item.title || "Video"),
+            thumbnail: `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
+            duration: item.duration || "",
+            views: item.views || "",
+            publishedAt: "",
+            url: `https://www.youtube.com/watch?v=${item.videoId}`,
+          });
         }
+      } catch (e) {
+        console.error("[v0] JSON parse failed:", e);
       }
+    } else {
+      console.warn("[v0] Could not locate ytInitialData");
     }
 
-    console.log(`[v0] Found ${videos.length} videos from channel`);
+    console.log(
+      `[v0] Found ${videos.length} videos from channel`
+    );
+
     return videos;
   } catch (error) {
     console.error("[v0] Error fetching recent videos:", error);
@@ -125,44 +88,59 @@ for (const videoId of Array.from(foundIds).slice(0, 12)) {
   }
 }
 
-// Recursively search for videoRenderer objects in nested JSON
-function findVideoRenderers(obj: any, results: any[] = []): any[] {
-  if (!obj || typeof obj !== 'object') return results;
-  
-  if (obj.videoRenderer && obj.videoRenderer.videoId) {
-    const vr = obj.videoRenderer;
+function findVideoRenderers(
+  obj: unknown,
+  results: VideoRendererResult[] = [],
+  seen = new Set<string>()
+): VideoRendererResult[] {
+  if (!obj || typeof obj !== "object") {
+    return results;
+  }
+
+  const recordVideo = (vr: any) => {
+    if (!vr?.videoId || seen.has(vr.videoId)) {
+      return;
+    }
+
+    seen.add(vr.videoId);
+
     results.push({
       videoId: vr.videoId,
-      title: vr.title?.runs?.[0]?.text || vr.title?.simpleText || "",
+      title:
+        vr.title?.runs?.[0]?.text ||
+        vr.title?.simpleText ||
+        "",
       duration: vr.lengthText?.simpleText || "",
-      views: vr.viewCountText?.simpleText?.replace(" views", "").replace(",", "") || "",
+      views:
+        vr.viewCountText?.simpleText
+          ?.replace(/ views?/i, "")
+          ?.replace(/,/g, "") || "",
     });
+  };
+
+  const current = obj as Record<string, any>;
+
+  if (current.videoRenderer) {
+    recordVideo(current.videoRenderer);
   }
-  
-  if (obj.richItemRenderer?.content?.videoRenderer) {
-    const vr = obj.richItemRenderer.content.videoRenderer;
-    results.push({
-      videoId: vr.videoId,
-      title: vr.title?.runs?.[0]?.text || vr.title?.simpleText || "",
-      duration: vr.lengthText?.simpleText || "",
-      views: vr.viewCountText?.simpleText?.replace(" views", "").replace(",", "") || "",
-    });
+
+  if (current.richItemRenderer?.content?.videoRenderer) {
+    recordVideo(current.richItemRenderer.content.videoRenderer);
   }
-  
-  for (const key of Object.keys(obj)) {
-    if (Array.isArray(obj[key])) {
-      for (const item of obj[key]) {
-        findVideoRenderers(item, results);
+
+  for (const value of Object.values(current)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        findVideoRenderers(item, results, seen);
       }
-    } else if (typeof obj[key] === 'object') {
-      findVideoRenderers(obj[key], results);
+    } else if (value && typeof value === "object") {
+      findVideoRenderers(value, results, seen);
     }
   }
-  
+
   return results;
 }
 
-// Helper to decode HTML entities
 function decodeHTMLEntities(text: string): string {
   return text
     .replace(/&amp;/g, "&")
@@ -179,13 +157,14 @@ export async function GET() {
   const videos = await fetchRecentVideos();
 
   return NextResponse.json(
-    { 
+    {
       videos,
       updatedAt: new Date().toISOString(),
     },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=1800",
+        "Cache-Control":
+          "public, s-maxage=900, stale-while-revalidate=1800",
       },
     }
   );

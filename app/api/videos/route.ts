@@ -11,7 +11,7 @@ export const revalidate = 900;
 
 export async function GET() {
   try {
-    const CHANNEL_ID = "UCxxxxxxxxxxxxxxxxxxxx"; // 🔥 replace this
+    const CHANNEL_ID = "UCJsjU10QIMgaO_1bKz87HHA"; // 🔥 replace this
 
     const res = await fetch(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,

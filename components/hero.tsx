@@ -4,6 +4,7 @@ import { Youtube } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useYouTubeStats } from "@/lib/use-youtube-stats";
+import { InteractiveBackground } from "@/components/interactive-background";
 
 // Discord icon component
 function DiscordIcon({ className }: { className?: string }) {
@@ -24,13 +25,20 @@ export function Hero() {
   const mainChannel = channels?.["@Taostt"];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
-      {/* Background - adapts to theme */}
-      <div className="absolute inset-0 dark:bg-black bg-white" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background - adapts to theme: yellow in light, black in dark */}
+      <div className="absolute inset-0 bg-[hsl(45,100%,50%)] dark:bg-black" />
+      
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/10 dark:to-yellow-500/5" />
 
-      {/* Subtle gold glow spots */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.15) 0%, transparent 70%)" }} />
-      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.12) 0%, transparent 70%)" }} />
+      {/* Interactive particle background */}
+      <InteractiveBackground />
+
+      {/* Subtle glow spots */}
+      <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none opacity-30 dark:opacity-100" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)" }} />
+      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full pointer-events-none opacity-30 dark:opacity-100" style={{ background: "radial-gradient(circle, rgba(250,204,21,0.25) 0%, transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%)" }} />
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">

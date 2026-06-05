@@ -3,47 +3,35 @@
 import { Play, Eye, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePlaylist, formatViews } from "@/lib/use-playlist";
+import { usePlaylist } from "@/lib/use-playlist";
 
 const CHANNEL_URL = "https://www.youtube.com/@Taostt";
+
+type Video = {
+  id: string;
+  title: string;
+  thumbnail: string;
+  url: string;
+  duration?: string;
+  views?: string;
+};
 
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
-  console.log("[v0] Videos state:", {
-    videosCount: videos.length,
-    isLoading,
-    isError,
-  });
+  // Force-safe typing so TS stops complaining
+  const safeVideos: Video[] = Array.isArray(videos) ? videos : [];
 
   return (
     <section
       id="videos"
       className="py-24 bg-background relative overflow-hidden"
     >
-      {/* Background effects */}
-      <div className="stars-layer" />
-
-      <div
-        className="nebula-glow absolute w-[32rem] h-[32rem] top-[-6rem] left-[-6rem] opacity-15"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(250,204,21,0.45) 0%, transparent 70%)",
-        }}
-      />
-
-      <div
-        className="nebula-glow absolute w-96 h-96 bottom-[-4rem] right-[5%] opacity-10"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)",
-        }}
-      />
-
       <div className="container mx-auto px-4 relative z-10">
+
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground text-balance">
+          <h2 className="text-4xl md:text-5xl font-bold">
             Op <span className="text-primary">Videos</span>
           </h2>
         </div>
@@ -51,7 +39,7 @@ export function Videos() {
         {/* Loading */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <span className="ml-3 text-muted-foreground">
               Loading videos...
             </span>
@@ -68,7 +56,7 @@ export function Videos() {
             <Link
               href={CHANNEL_URL}
               target="_blank"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg"
             >
               <Play className="w-5 h-5" />
               Watch on YouTube
@@ -77,43 +65,48 @@ export function Videos() {
         )}
 
         {/* Grid */}
-        {!isLoading && !isError && videos.length > 0 && (
+        {!isLoading && !isError && safeVideos.length > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {videos.slice(0, 6).map((video) => {
+            {safeVideos.slice(0, 6).map((video) => {
               if (!video?.id) return null;
+
+              const title = video.title ?? "Untitled video";
+              const url = video.url ?? CHANNEL_URL;
+              const thumbnail = video.thumbnail ?? "";
 
               return (
                 <Link
                   key={video.id}
-                  href={video.url}
+                  href={url}
                   target="_blank"
                   className="group block"
                 >
-                  <div className="rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                  <div className="rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all">
+
                     {/* Thumbnail */}
                     <div className="aspect-video relative bg-muted">
-                      {video.thumbnail ? (
+                      {thumbnail ? (
                         <Image
-                          src={video.thumbnail}
-                          alt={video.title ?? "YouTube video"}
+                          src={thumbnail}
+                          alt={title}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary" />
                       )}
 
                       {/* Play overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                          <Play className="w-8 h-8 text-primary-foreground fill-current ml-1" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition">
+                        <div className="opacity-0 group-hover:opacity-100 bg-primary/90 p-3 rounded-full">
+                          <Play className="w-6 h-6 text-white fill-current" />
                         </div>
                       </div>
 
-                      {/* Duration */}
+                      {/* Duration (SAFE) */}
                       {video.duration && (
-                        <span className="absolute bottom-3 right-3 bg-background/90 text-foreground text-xs font-medium px-2 py-1 rounded flex items-center gap-1">
+                        <span className="absolute bottom-3 right-3 bg-background/90 text-xs px-2 py-1 rounded flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {video.duration}
                         </span>
@@ -122,14 +115,15 @@ export function Videos() {
 
                     {/* Info */}
                     <div className="p-4 space-y-2">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                        {video.title ?? "Untitled video"}
+                      <h3 className="font-semibold line-clamp-2 group-hover:text-primary">
+                        {title}
                       </h3>
 
+                      {/* Views (SAFE) */}
                       {video.views && (
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Eye className="w-4 h-4" />
-                          {formatViews(video.views)}
+                          {video.views}
                         </p>
                       )}
                     </div>
@@ -141,7 +135,7 @@ export function Videos() {
         )}
 
         {/* Empty */}
-        {!isLoading && !isError && videos.length === 0 && (
+        {!isLoading && !isError && safeVideos.length === 0 && (
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">
               No videos available right now.
@@ -150,25 +144,13 @@ export function Videos() {
             <Link
               href={CHANNEL_URL}
               target="_blank"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg"
             >
               <Play className="w-5 h-5" />
               Visit Channel
             </Link>
           </div>
         )}
-
-        {/* CTA */}
-        <div className="text-center mt-12">
-          <Link
-            href={CHANNEL_URL}
-            target="_blank"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-all hover:scale-105"
-          >
-            <Play className="w-5 h-5" />
-            View All Videos on YouTube
-          </Link>
-        </div>
       </div>
     </section>
   );

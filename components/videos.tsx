@@ -15,8 +15,6 @@ type Video = {
   url: string;
 };
 
-const RADIUS = 420;
-
 export function Videos() {
   const { videos, isLoading, isError } = usePlaylist();
 
@@ -25,35 +23,39 @@ export function Videos() {
     [videos]
   );
 
-  const [angle, setAngle] = useState(0);
+  const [index, setIndex] = useState(0);
 
-  const drag = useRef({
-    isDown: false,
-    startX: 0,
-    lastX: 0,
-    velocity: 0,
-    lastTime: 0,
-  });
-
+  // smooth animated position (not raw index)
+  const position = useRef(0);
+  const velocity = useRef(0);
   const raf = useRef<number | null>(null);
 
-  const itemCount = safeVideos.length || 1;
-  const angleStep = 360 / itemCount;
+  const clamp = (v: number) => {
+    if (!safeVideos.length) return 0;
+    const len = safeVideos.length;
+    return ((v % len) + len) % len;
+  };
 
-  // 🎯 spring physics loop
+  const snapTo = (target: number) => {
+    setIndex(clamp(target));
+  };
+
+  // 🎯 physics loop (smooth + spring)
   const animate = () => {
-    setAngle((prev) => {
-      let next = prev + drag.current.velocity;
+    // friction
+    velocity.current *= 0.85;
+    position.current += velocity.current;
 
-      // damping (spring feel)
-      drag.current.velocity *= 0.92;
+    // snap detection (magnet effect)
+    if (Math.abs(velocity.current) < 0.001) {
+      const nearest = Math.round(position.current);
+      position.current += (nearest - position.current) * 0.15;
 
-      if (Math.abs(drag.current.velocity) < 0.01) {
-        drag.current.velocity = 0;
+      if (Math.abs(nearest - position.current) < 0.01) {
+        position.current = nearest;
+        snapTo(nearest);
       }
-
-      return next;
-    });
+    }
 
     raf.current = requestAnimationFrame(animate);
   };
@@ -65,32 +67,11 @@ export function Videos() {
     };
   }, []);
 
-  const onPointerDown = (e: React.PointerEvent) => {
-    drag.current.isDown = true;
-    drag.current.startX = e.clientX;
-    drag.current.lastX = e.clientX;
-    drag.current.velocity = 0;
-    drag.current.lastTime = Date.now();
-  };
+  // 🧲 clean wheel control (FIXES CRAZY SCROLL ISSUE)
+  const onWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
 
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current.isDown) return;
-
-    const now = Date.now();
-    const dx = e.clientX - drag.current.lastX;
-
-    const dt = now - drag.current.lastTime || 16;
-
-    drag.current.velocity = dx / dt * 20;
-
-    drag.current.lastX = e.clientX;
-    drag.current.lastTime = now;
-
-    setAngle((prev) => prev + dx * 0.3);
-  };
-
-  const onPointerUp = () => {
-    drag.current.isDown = false;
+    velocity.current += e.deltaY * 0.0015;
   };
 
   if (isLoading) {
@@ -109,19 +90,13 @@ export function Videos() {
     );
   }
 
-  const activeIndex = Math.round(
-    ((angle % 360) + 360) % 360 / angleStep
-  ) % itemCount;
-
-  const active = safeVideos[activeIndex];
-
   return (
     <section className="relative py-32 overflow-hidden bg-black">
 
-      {/* 🌫 background blur */}
+      {/* background (visionOS blur style) */}
       <div className="absolute inset-0">
         <Image
-          src={active.thumbnail}
+          src={safeVideos[index].thumbnail}
           alt=""
           fill
           className="object-cover blur-3xl opacity-40 scale-125"
@@ -134,46 +109,43 @@ export function Videos() {
         {/* header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white">
-            3D <span className="text-primary">Videos</span>
+            Vision <span className="text-primary">Videos</span>
           </h2>
         </div>
 
-        {/* 🎡 3D RING */}
+        {/* 🧲 SPATIAL STACK */}
         <div
-          className="relative h-[500px] flex items-center justify-center perspective-[1200px]"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
+          className="relative h-[520px] flex items-center justify-center"
+          onWheel={onWheel}
         >
-
           {safeVideos.map((video, i) => {
-            const theta = angle + i * angleStep;
-            const rad = (theta * Math.PI) / 180;
+            const offset = i - position.current;
 
-            const x = Math.sin(rad) * RADIUS;
-            const z = Math.cos(rad) * RADIUS;
-
-            const scale = (z + RADIUS) / (RADIUS * 2) + 0.6;
-            const opacity = scale;
+            const scale = Math.max(0.75, 1 - Math.abs(offset) * 0.15);
+            const opacity = Math.max(0, 1 - Math.abs(offset) * 0.25);
+            const rotateY = offset * -35;
+            const translateX = offset * 180;
+            const translateZ = -Math.abs(offset) * 120;
 
             return (
               <Link
                 key={video.id}
                 href={video.url}
                 target="_blank"
-                className="absolute transition-transform duration-200"
+                className="absolute transition-all duration-300 ease-out"
                 style={{
                   transform: `
-                    translateX(${x}px)
-                    translateZ(${z}px)
+                    translateX(${translateX}px)
+                    translateZ(${translateZ}px)
+                    rotateY(${rotateY}deg)
                     scale(${scale})
                   `,
                   opacity,
-                  zIndex: Math.round(z),
+                  zIndex: 100 - Math.abs(offset),
+                  pointerEvents: Math.abs(offset) > 3 ? "none" : "auto",
                 }}
               >
-                <div className="relative w-[360px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
+                <div className="relative w-[420px] aspect-video rounded-2xl overflow-hidden shadow-2xl">
 
                   <Image
                     src={video.thumbnail}
@@ -182,8 +154,8 @@ export function Videos() {
                     className="object-cover"
                   />
 
-                  {/* overlay */}
-                  <div className="absolute inset-0 bg-black/30" />
+                  {/* glass overlay */}
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
 
                   {/* play */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -203,7 +175,6 @@ export function Videos() {
               </Link>
             );
           })}
-
         </div>
 
         {/* CTA */}

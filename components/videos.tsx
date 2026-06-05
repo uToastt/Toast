@@ -84,7 +84,7 @@ export function Videos() {
 
         <div className="text-center mb-14">
           <h2 className="text-4xl font-bold text-white">
-            Vision <span className="text-primary">Videos</span>
+            OP <span className="text-primary">Videos</span>
           </h2>
         </div>
 

@@ -1,50 +1,44 @@
 "use client";
 
-import useSWR from "swr";
+import { useEffect, useState } from "react";
 
-interface YouTubeChannel {
-  id: string;
-  name: string;
+type Channel = {
   handle: string;
-  subscribers: string;
-  views: string;
-  videoCount: string;
+  name: string;
   profileImage: string;
-}
-
-type YouTubeData = Record<string, YouTubeChannel | null>;
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  subscribers: number;
+  views: number;
+  videoCount: number;
+};
 
 export function useYouTubeStats() {
-  const { data, error, isLoading } = useSWR<YouTubeData>("/api/youtube", fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 3600000, // 1 hour
-  });
+  const [channels, setChannels] = useState<Record<string, Channel>>({});
 
-  return {
-    channels: data,
-    isLoading,
-    isError: error,
-  };
-}
+  async function load() {
+    try {
+      const res = await fetch("/api/subscribers", {
+        cache: "no-store",
+      });
 
-export function formatCount(count: string): string {
-  // Already formatted (e.g., "1.2K", "500K", "1M")
-  if (/[KMB]$/i.test(count)) {
-    return count;
+      const data = await res.json();
+
+      const map: Record<string, Channel> = {};
+      for (const c of data.channels || []) {
+        map[c.handle] = c;
+      }
+
+      setChannels(map);
+    } catch (err) {
+      console.error(err);
+    }
   }
-  
-  // Try to parse as number
-  const num = parseInt(count.replace(/[,\s]/g, ""), 10);
-  if (isNaN(num)) return count;
-  
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, "") + "K";
-  }
-  return num.toString();
+
+  useEffect(() => {
+    load();
+
+    const interval = setInterval(load, 30000); // 🔥 auto-refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  return { channels };
 }

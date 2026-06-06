@@ -13,10 +13,10 @@ const creators = [
     link: "https://www.youtube.com/@Taostt",
   },
   {
-    handle: "@Tozixz",
-    name: "Tozixz",
+    handle: "@1ts_Toxic",
+    name: "1ts_Toxic",
     role: "Creator",
-    link: "https://www.youtube.com/@Tozixz",
+    link: "https://www.youtube.com/@1ts_Toxic",
   },
 ];
 

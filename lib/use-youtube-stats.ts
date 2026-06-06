@@ -14,25 +14,30 @@ type Channel = {
 export function useYouTubeStats() {
   const [channels, setChannels] = useState<Record<string, Channel>>({});
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/subscribers");
-        const data = await res.json();
+  async function load() {
+    try {
+      const res = await fetch("/api/subscribers", {
+        cache: "no-store",
+      });
 
-        const map: Record<string, Channel> = {};
+      const data = await res.json();
 
-        for (const c of data.channels || []) {
-          map[c.handle] = c;
-        }
-
-        setChannels(map);
-      } catch (err) {
-        console.error(err);
+      const map: Record<string, Channel> = {};
+      for (const c of data.channels || []) {
+        map[c.handle] = c;
       }
-    }
 
+      setChannels(map);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
     load();
+
+    const interval = setInterval(load, 30000); // 🔥 auto-refresh every 30s
+    return () => clearInterval(interval);
   }, []);
 
   return { channels };

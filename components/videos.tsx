@@ -75,7 +75,7 @@ export function Videos() {
           src={active.thumbnail}
           alt=""
           fill
-          className="object-cover blur-3xl opacity-25 scale-110"
+          className="object-cover blur-3xl opacity-15 scale-80"
         />
         <div className="absolute inset-0 bg-black/60" />
       </div>

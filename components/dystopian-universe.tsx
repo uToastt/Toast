@@ -129,11 +129,11 @@ export function DystopianUniverse() {
                     </div>
 
                     {/* FIXED subscriber block */}
-                    {channelData?.subscribers && (
+                    {typeof channelData?.subscribers === "number" && (
                       <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
                         <Users className="w-4 h-4" />
                         <span>
-                          {Number(channelData.subscribers).toLocaleString()} Subscribers
+                          {channelData.subscribers.toLocaleString()} Subscribers
                         </span>
                       </div>
                     )}
@@ -184,7 +184,7 @@ export function DystopianUniverse() {
               className="inline-flex items-center gap-3 bg-primary text-black px-8 py-4 rounded-xl font-semibold hover:scale-105 transition-all"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.317 4.37a19.791..." />
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515..." />
               </svg>
               Join Discord
             </Link>

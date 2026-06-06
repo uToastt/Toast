@@ -6,36 +6,32 @@ const CHANNELS = [
   {
     handle: "@Taostt",
     id: "UCJsjU10QIMgaO_1bKz87HHA",
-    name: "Toast",
   },
   {
     handle: "@1ts_Toxic",
     id: "UCLFema9EDYsLlZHr918-mUw",
-    name: "1ts_Toxic",
   },
 ];
 
 export async function GET() {
   try {
-    const results = await Promise.all(
-      CHANNELS.map(async (channel) => {
+    const channels = await Promise.all(
+      CHANNELS.map(async (c) => {
         const res = await fetch(
-          `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channel.id}&key=${API_KEY}`,
-          {
-            next: { revalidate: 3600 }, // cache 1 hour (Vercel safe)
-          }
+          `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${c.id}&key=${API_KEY}`,
+          { cache: "no-store" }
         );
 
         if (!res.ok) {
-          throw new Error(`Failed for ${channel.handle}`);
+          throw new Error(`Failed request for ${c.handle}`);
         }
 
         const data = await res.json();
         const item = data.items?.[0];
 
         return {
-          handle: channel.handle,
-          name: item?.snippet?.title || channel.name,
+          handle: c.handle,
+          name: item?.snippet?.title || "",
           profileImage: item?.snippet?.thumbnails?.high?.url || "",
           subscribers: Number(item?.statistics?.subscriberCount || 0),
           views: Number(item?.statistics?.viewCount || 0),
@@ -45,7 +41,7 @@ export async function GET() {
     );
 
     return NextResponse.json({
-      channels: results,
+      channels,
       updatedAt: new Date().toISOString(),
     });
   } catch (err) {

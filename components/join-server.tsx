@@ -45,12 +45,11 @@ export function JoinServer() {
 
             <h2 className="font-display text-5xl md:text-7xl font-bold mb-4">
               Join the
-              <span className="text-primary"> Adventure</span>
+              <span className="text-primary"> Dystopian Universe</span>
             </h2>
 
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Build, conquer, form alliances, and survive in a constantly
-              evolving world.
+              Paste this into the server address section!
             </p>
           </div>
 
@@ -113,10 +112,6 @@ export function JoinServer() {
 
                 <div className="px-4 py-2 rounded-full border border-border bg-background/60">
                   Java Edition
-                </div>
-
-                <div className="px-4 py-2 rounded-full border border-border bg-background/60">
-                  Bedrock Edition
                 </div>
 
                 <div className="px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 flex items-center gap-2">

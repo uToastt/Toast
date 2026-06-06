@@ -9,14 +9,14 @@ const creators = [
   {
     handle: "@Taostt",
     name: "Toast",
-    role: "Founder",
+    role: "op Creator",
     link: "https://www.youtube.com/@Taostt",
   },
   {
-    handle: "@1ts_Toxic",
-    name: "1ts_Toxic",
-    role: "Co-Founder",
-    link: "https://www.youtube.com/@1ts_Toxic",
+    handle: "@Tozixz",
+    name: "Tozixz",
+    role: "Creator",
+    link: "https://www.youtube.com/@Tozixz",
   },
 ];
 

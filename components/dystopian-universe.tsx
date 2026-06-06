@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Youtube, ExternalLink, Users, BadgeCheck, MessageCircle } from "lucide-react";
+import { Youtube, ExternalLink, Users, BadgeCheck } from "lucide-react";
 import { useYouTubeStats } from "@/lib/use-youtube-stats";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 
@@ -27,6 +27,7 @@ export function DystopianUniverse() {
   return (
     <section id="dystopian" className="py-32 bg-card relative overflow-hidden">
 
+      {/* Background */}
       <div className="stars-layer" />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -88,7 +89,7 @@ export function DystopianUniverse() {
 
                   <p className="text-primary mt-2">{creator.role}</p>
 
-                  {/* Subscribers */}
+                  {/* Subscribers (FIXED + SAFE + ANIMATED) */}
                   {typeof channel?.subscribers === "number" && (
                     <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
                       <Users className="w-4 h-4" />
@@ -135,8 +136,16 @@ export function DystopianUniverse() {
               target="_blank"
               className="inline-flex items-center gap-3 bg-primary text-black px-8 py-4 rounded-xl font-semibold hover:scale-105 transition"
             >
-              {/* FIXED WHITE ICON */}
-              <MessageCircle className="w-5 h-5 text-white" />
+              {/* REAL DISCORD LOGO */}
+              <svg
+                className="w-5 h-5 text-white"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515..." />
+              </svg>
+
               Join Discord
             </Link>
 

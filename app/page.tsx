@@ -232,7 +232,7 @@ export default function Home() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Grab a snack. Stay a while.</p>
-              <h2>Fresh from the channel<span>.</span></h2>
+              <h2>op videos<span>.</span></h2>
             </div>
 
             <a

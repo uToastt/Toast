@@ -1,33 +1,16 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-export const metadata: Metadata = {
-  title: "Toast | Revenant SMP",
-  description:
-    "Minecraft stories by Toast. Watch the latest videos and discover Revenant SMP at rs.taostt.com.",
-  icons: {
-    icon: "/favicon.jpg",
-    apple: "/favicon.jpg",
-  },
-  openGraph: {
-    title: "Toast | Revenant SMP",
-    description: "Every world. A new story.",
-    type: "website",
-  },
-};
+html {
+  scroll-behavior: smooth;
+}
 
-export const viewport: Viewport = {
-  themeColor: "#14110c",
-};
+body {
+  margin: 0;
+  background: #14110c;
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+* {
+  box-sizing: border-box;
 }

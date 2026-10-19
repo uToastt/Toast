@@ -2,22 +2,16 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Revenant SMP | Toast",
+  title: "Toast | Revenant SMP",
   description:
-    "Minecraft stories by Toast. Watch the videos and discover Revenant SMP at rs.taostt.com.",
+    "Minecraft stories by Toast. Watch the latest videos and discover Revenant SMP.",
   icons: {
     icon: "/favicon.jpg",
-    apple: "/favicon.jpg",
-  },
-  openGraph: {
-    title: "Revenant SMP | Toast",
-    description: "Watch the stories. Join the next chapter.",
-    type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c0e0d",
+  themeColor: "#14110c",
 };
 
 export default function RootLayout({
@@ -26,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

@@ -185,13 +185,13 @@ export default function Home() {
             </p>
 
             <h1>
-              Paradoxes are here.
+              hey, I'm Toast.
               <br />
-              Everything is <span>connected.</span>
+              slightly burnt <span>bread.</span>
             </h1>
 
             <p className="hero-description">
-              A little chaos. A lot of Minecraft.
+              Memories are never lost.
               <br />
               Come watch the stories and join the next chapter.
             </p>
@@ -348,7 +348,7 @@ export default function Home() {
 
             <p>
               Discover Revenant SMP. Join the Discord to meet the
-              community, get server details, and see what’s coming next.
+              community, get early leaks, and see what’s coming next.
             </p>
 
             <div className="server-address">

@@ -63,10 +63,45 @@ export async function requireAdmin() {
 }
 
 export function sameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  const expectedOrigin = new URL(request.url).origin;
+  const site = request.headers.get("sec-fetch-site");
 
-  if (origin !== expectedOrigin) {
+  // Accept requests the browser identifies as same-origin.
+  if (site === "same-origin") {
+    return;
+  }
+
+  // Reject submissions from other websites or subdomains.
+  if (
+    site === "cross-site" ||
+    site === "same-site"
+  ) {
+    throw new HttpError(
+      403,
+      "Please submit this form from this website."
+    );
+  }
+
+  // Fallback when browser metadata is unavailable.
+  const allowed = new Set([
+    new URL(request.url).origin,
+  ]);
+
+  if (process.env.APP_ORIGIN) {
+    try {
+      allowed.add(
+        new URL(process.env.APP_ORIGIN).origin
+      );
+    } catch {
+      throw new HttpError(
+        503,
+        "The website address setting is invalid."
+      );
+    }
+  }
+
+  const origin = request.headers.get("origin");
+
+  if (!origin || !allowed.has(origin)) {
     throw new HttpError(
       403,
       "Please submit this form from this website."

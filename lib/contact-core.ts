@@ -1,228 +1,362 @@
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
 import {
-  createHash,
-  createHmac,
-  randomBytes,
-  scryptSync,
-  timingSafeEqual,
-} from "node:crypto";
+  hashPassword,
+  rateKey,
+  validPasswordHash,
+  verifySession,
+} from "./contact-core";
 
-export type ContactInput = {
-  name: string;
-  email: string;
-  subject: string;
-  category: string;
-  message: string;
-};
+export class HttpError extends Error {
+  status: number;
 
-export const categories = [
-  "Collaboration",
-  "Sponsorship",
-  "General inquiry",
-];
-
-export function textField(
-  value: unknown,
-  label: string,
-  min: number,
-  max: number
-): string {
-  if (typeof value !== "string") {
-    throw new Error(`Please enter ${label}.`);
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
   }
+}
 
-  const text = value.trim();
+export function required(name: string): string {
+  const value = process.env[name];
 
-  if (
-    text.length < min ||
-    text.length > max ||
-    /\u0000/.test(text)
-  ) {
-    throw new Error(
-      `${label} must be ${min}–${max} characters.`
+  if (!value) {
+    throw new HttpError(
+      503,
+      "This feature is waiting for site setup. Please try again later."
     );
   }
 
-  return text;
+  return value;
 }
 
-export function validateContact(
-  value: Record<string, unknown>
-): ContactInput {
-  const name = textField(value.name, "your name", 1, 100);
+export function adminConfig() {
+  const secret = required("ADMIN_SESSION_SECRET");
 
-  const email = textField(
-    value.email,
-    "your email address",
-    3,
-    254
-  ).toLowerCase();
-
-  if (
-    !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email) ||
-    /[\r\n]/.test(email)
-  ) {
-    throw new Error("Please enter a valid email address.");
+  if (secret.length < 32) {
+    throw new HttpError(
+      503,
+      "The admin session secret must contain at least 32 characters."
+    );
   }
 
-  const subject = textField(
-    value.subject,
-    "a subject",
-    3,
-    160
-  );
+  const password = process.env.ADMIN_PASSWORD;
 
-  if (/[\r\n]/.test(subject)) {
-    throw new Error("Please use one line for the subject.");
+  let hash: string;
+
+  if (password) {
+    if (
+      password.length < 12 ||
+      password.length > 256
+    ) {
+      throw new HttpError(
+        503,
+        "The admin password must contain 12–256 characters."
+      );
+    }
+
+    hash = hashPassword(
+      password,
+      rateKey(
+        "toast-admin-password",
+        secret
+      ).slice(0, 32)
+    );
+  } else {
+    hash = required("ADMIN_PASSWORD_HASH");
   }
 
-  const category = textField(
-    value.category,
-    "an inquiry type",
-    1,
-    40
-  );
-
-  if (!categories.includes(category)) {
-    throw new Error("Please select an inquiry type.");
+  if (!validPasswordHash(hash)) {
+    throw new HttpError(
+      503,
+      "Admin access is waiting for site setup."
+    );
   }
-
-  const message = textField(
-    value.message,
-    "a message",
-    20,
-    6000
-  );
 
   return {
-    name,
-    email,
-    subject,
-    category,
-    message,
+    secret,
+    hash,
+    username:
+      process.env.ADMIN_USERNAME || "Taostt",
   };
 }
 
-export function hashPassword(
-  password: string,
-  salt = randomBytes(16).toString("hex")
-): string {
-  const hash = scryptSync(password, salt, 64).toString("hex");
+export const cookieName =
+  process.env.NODE_ENV === "production"
+    ? "__Host-toast_admin"
+    : "toast_admin";
 
-  return `scrypt:${salt}:${hash}`;
-}
+export async function requireAdmin() {
+  const { secret, hash } = adminConfig();
 
-export function validPasswordHash(hash: string): boolean {
-  return /^scrypt:[a-f0-9]{32}:[a-f0-9]{128}$/.test(hash);
-}
+  const cookieStore = await cookies();
 
-export function verifyPassword(
-  password: string,
-  hash: string
-): boolean {
-  if (!validPasswordHash(hash)) return false;
+  const token =
+    cookieStore.get(cookieName)?.value || "";
 
-  const [, salt, expected] = hash.split(":");
-  const actual = scryptSync(password, salt, 64);
-
-  return timingSafeEqual(
-    actual,
-    Buffer.from(expected, "hex")
-  );
-}
-
-function signature(
-  payload: string,
-  secret: string
-): string {
-  return createHmac("sha256", secret)
-    .update(payload)
-    .digest("base64url");
-}
-
-function equal(a: string, b: string): boolean {
-  const first = Buffer.from(a);
-  const second = Buffer.from(b);
-
-  return (
-    first.length === second.length &&
-    timingSafeEqual(first, second)
-  );
-}
-
-function fingerprint(hash: string): string {
-  return createHash("sha256")
-    .update(hash)
-    .digest("hex")
-    .slice(0, 24);
-}
-
-export function issueSession(
-  secret: string,
-  passwordHash: string,
-  now = Date.now()
-): string {
-  const payload = Buffer.from(
-    JSON.stringify({
-      exp: Math.floor(now / 1000) + 28800,
-      v: fingerprint(passwordHash),
-      nonce: randomBytes(16).toString("hex"),
-    })
-  ).toString("base64url");
-
-  return `${payload}.${signature(payload, secret)}`;
-}
-
-export function verifySession(
-  token: string,
-  secret: string,
-  passwordHash: string,
-  now = Date.now()
-): boolean {
-  try {
-    if (token.length > 1500) return false;
-
-    const [payload, sig, extra] = token.split(".");
-
-    if (
-      !payload ||
-      !sig ||
-      extra ||
-      !equal(sig, signature(payload, secret))
-    ) {
-      return false;
-    }
-
-    const data = JSON.parse(
-      Buffer.from(payload, "base64url").toString("utf8")
+  if (!verifySession(token, secret, hash)) {
+    throw new HttpError(
+      401,
+      "Please sign in to continue."
     );
-
-    const currentTime = Math.floor(now / 1000);
-
-    return (
-      Number.isInteger(data.exp) &&
-      data.exp > currentTime &&
-      data.exp <= currentTime + 28800 &&
-      data.v === fingerprint(passwordHash)
-    );
-  } catch {
-    return false;
   }
 }
 
-export function rateKey(
-  value: string,
-  secret: string
-): string {
-  return createHmac("sha256", secret)
-    .update(value)
-    .digest("hex");
+export function sameOrigin(request: Request) {
+  const site = request.headers.get("sec-fetch-site");
+
+  if (site === "same-origin") {
+    return;
+  }
+
+  if (
+    site === "cross-site" ||
+    site === "same-site"
+  ) {
+    throw new HttpError(
+      403,
+      "Please submit this form from this website."
+    );
+  }
+
+  const allowed = new Set([
+    new URL(request.url).origin,
+  ]);
+
+  if (process.env.APP_ORIGIN) {
+    try {
+      allowed.add(
+        new URL(process.env.APP_ORIGIN).origin
+      );
+    } catch {
+      throw new HttpError(
+        503,
+        "The website address setting is invalid."
+      );
+    }
+  }
+
+  const origin = request.headers.get("origin");
+
+  if (!origin || !allowed.has(origin)) {
+    throw new HttpError(
+      403,
+      "Please submit this form from this website."
+    );
+  }
 }
 
-export function isUuid(value: unknown): value is string {
+export async function jsonBody(
+  request: Request,
+  limit = 30000
+): Promise<Record<string, unknown>> {
+  const contentType =
+    request.headers.get("content-type");
+
+  if (
+    !contentType?.includes("application/json")
+  ) {
+    throw new HttpError(
+      415,
+      "Please submit the website form."
+    );
+  }
+
+  const contentLength = Number(
+    request.headers.get("content-length") || 0
+  );
+
+  if (contentLength > limit) {
+    throw new HttpError(
+      413,
+      "The message is too long."
+    );
+  }
+
+  const reader = request.body?.getReader();
+
+  if (!reader) {
+    throw new HttpError(
+      400,
+      "Missing form data."
+    );
+  }
+
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+
+  while (true) {
+    const { done, value } =
+      await reader.read();
+
+    if (done) break;
+
+    size += value.length;
+
+    if (size > limit) {
+      await reader.cancel();
+
+      throw new HttpError(
+        413,
+        "The message is too long."
+      );
+    }
+
+    chunks.push(value);
+  }
+
+  try {
+    const value = JSON.parse(
+      Buffer.concat(chunks).toString("utf8")
+    );
+
+    if (
+      !value ||
+      typeof value !== "object" ||
+      Array.isArray(value)
+    ) {
+      throw new Error("Invalid form data");
+    }
+
+    return value;
+  } catch {
+    throw new HttpError(
+      400,
+      "Invalid form data."
+    );
+  }
+}
+
+function mergeHeaders(
+  base: Record<string, string>,
+  extra?: HeadersInit
+): Headers {
+  const result = new Headers(base);
+
+  new Headers(extra).forEach(
+    (value, key) => {
+      result.set(key, value);
+    }
+  );
+
+  return result;
+}
+
+export async function db<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const url = required(
+    "SUPABASE_URL"
+  ).replace(/\/$/, "");
+
+  const key = required(
+    "SUPABASE_SECRET_KEY"
+  );
+
+  const headers: Record<string, string> = {
+    apikey: key,
+    "Content-Type": "application/json",
+  };
+
+  if (!key.startsWith("sb_secret_")) {
+    headers.Authorization = `Bearer ${key}`;
+  }
+
+  const response = await fetch(
+    `${url}/rest/v1/${path}`,
+    {
+      ...options,
+      headers: mergeHeaders(
+        headers,
+        options.headers
+      ),
+      cache: "no-store",
+      signal: AbortSignal.timeout(10000),
+    }
+  );
+
+  if (!response.ok) {
+    throw new HttpError(
+      503,
+      "The inbox is temporarily unavailable. Please try again later."
+    );
+  }
+
+  const text = await response.text();
+
   return (
-    typeof value === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      value
-    )
+    text ? JSON.parse(text) : null
+  ) as T;
+}
+
+export async function rateLimit(
+  request: Request,
+  scope: string,
+  max: number,
+  seconds: number
+) {
+  const secret = required(
+    "ADMIN_SESSION_SECRET"
+  );
+
+  const ip = process.env.VERCEL
+    ? request.headers
+        .get("x-vercel-forwarded-for")
+        ?.split(",")[0]
+        ?.trim() || "unknown"
+    : "local";
+
+  const allowed = await db<boolean>(
+    "rpc/toast_consume_limit",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        p_key: rateKey(
+          `${scope}:${ip}`,
+          secret
+        ),
+        p_limit: max,
+        p_seconds: seconds,
+      }),
+    }
+  );
+
+  if (!allowed) {
+    throw new HttpError(
+      429,
+      "Too many attempts. Please wait a while and try again."
+    );
+  }
+}
+
+export function replyJson(
+  value: unknown,
+  status = 200
+) {
+  return NextResponse.json(value, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
+export function failure(error: unknown) {
+  if (error instanceof HttpError) {
+    return replyJson(
+      {
+        error: error.message,
+      },
+      error.status
+    );
+  }
+
+  return replyJson(
+    {
+      error:
+        "Something went wrong. Please try again later.",
+    },
+    503
   );
 }

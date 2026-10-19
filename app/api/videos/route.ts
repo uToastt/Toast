@@ -1,55 +1,102 @@
 import { NextResponse } from "next/server";
 
-type Video = {
-  id: string;
-  title: string;
-  thumbnail: string;
-  url: string;
-};
-
 export const revalidate = 900;
+
+function decodeXml(value: string): string {
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(
+      /&(amp|lt|gt|quot|apos|#\d+|#x[\da-f]+);/gi,
+      (match, entity: string) => {
+        const named: Record<string, string> = {
+          amp: "&",
+          lt: "<",
+          gt: ">",
+          quot: '"',
+          apos: "'",
+        };
+
+        if (named[entity]) return named[entity];
+
+        const code = entity.toLowerCase().startsWith("#x")
+          ? parseInt(entity.slice(2), 16)
+          : parseInt(entity.slice(1), 10);
+
+        return Number.isFinite(code) && code <= 0x10ffff
+          ? String.fromCodePoint(code)
+          : match;
+      }
+    );
+}
 
 export async function GET() {
   try {
-    const CHANNEL_ID = "UCJsjU10QIMgaO_1bKz87HHA"; // 🔥 replace this
+    const channelId =
+      process.env.YOUTUBE_CHANNEL_ID ||
+      "UCJsjU10QIMgaO_1bKz87HHA";
 
-    const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
+    const response = await fetch(
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(
+        channelId
+      )}`,
       {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-        },
-        cache: "force-cache",
+        next: { revalidate: 900 },
+        signal: AbortSignal.timeout(10000),
       }
     );
 
-    const xml = await res.text();
-
-    if (!xml.includes("<entry>")) {
-      console.error("[videos] invalid RSS response");
-      return NextResponse.json({ videos: [] });
+    if (!response.ok) {
+      throw new Error("YouTube feed unavailable");
     }
 
-    const entries = xml.split("<entry>").slice(1);
+    const xml = await response.text();
 
-    const videos: Video[] = entries.slice(0, 12).map((entry) => {
-      const id =
-        entry.match(/<yt:videoId>(.*?)<\/yt:videoId>/)?.[1] || "";
+    if (!xml.includes("<feed")) {
+      throw new Error("Invalid feed response");
+    }
 
-      const title =
-        entry.match(/<title>(.*?)<\/title>/)?.[1] || "Video";
+    const videos = Array.from(
+      xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)
+    )
+      .flatMap(([, entry]) => {
+        const id = entry.match(
+          /<yt:videoId>([a-zA-Z0-9_-]{11})<\/yt:videoId>/
+        )?.[1];
 
-      return {
-        id,
-        title,
-        url: `https://www.youtube.com/watch?v=${id}`,
-        thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      };
-    });
+        if (!id) return [];
 
-    return NextResponse.json({ videos });
-  } catch (err) {
-    console.error("[videos error]", err);
-    return NextResponse.json({ videos: [] });
+        const title = decodeXml(
+          entry.match(/<title>([\s\S]*?)<\/title>/)?.[1] ||
+            "Watch video"
+        );
+
+        return [
+          {
+            id,
+            title,
+            thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+            url: `https://www.youtube.com/watch?v=${id}`,
+          },
+        ];
+      })
+      .slice(0, 12);
+
+    return NextResponse.json(
+      { videos },
+      {
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=900, stale-while-revalidate=3600",
+        },
+      }
+    );
+  } catch {
+    return NextResponse.json(
+      {
+        videos: [],
+        error: "Video feed temporarily unavailable",
+      },
+      { status: 502 }
+    );
   }
 }

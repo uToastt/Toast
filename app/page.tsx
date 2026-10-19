@@ -185,9 +185,9 @@ export default function Home() {
             </p>
 
             <h1>
-              Every world.
+              Paradoxes are here.
               <br />
-              A new <span>story.</span>
+              Everything is <span>connected.</span>
             </h1>
 
             <p className="hero-description">
